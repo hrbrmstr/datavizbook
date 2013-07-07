@@ -2,6 +2,8 @@
 .AppleDouble
 .LSOverride
 Icon
+.RProj.user
+*.RProj
 
 
 # Thumbnails
@@ -10,3 +12,4 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+rcode/.Rhistory
