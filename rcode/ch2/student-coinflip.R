@@ -1,5 +1,5 @@
 show.students <- function() {
-  gg <- ggplot(students, aes(x, y)) + geom_point(aes(fill=heads), shape=21, size=8, colour="#AAAAAA", linewidth=1) + 
+  gg <- ggplot(students, aes(x, y)) + geom_point(aes(fill=heads), shape=21, size=12, colour="#AAAAAA", linewidth=1) + 
     scale_fill_manual(values=c("#00AA00", "#00000000")) + theme_bw() +
     theme(legend.position = "none", 
           axis.line   = element_blank(),
@@ -14,8 +14,8 @@ show.students <- function() {
 
 getSample <- function(size) {
   newhead <- sample(c("fill", "nofill"),size=size, replace=TRUE, prob=c(0.5, 0.5) )
-  if(length(which(newhead=="fill")) < size/2) {
-    newhead <- getSample(size)
+  if(length(which(newhead=="fill")) <= size/2) {
+    #newhead <- getSample(size)
   }
   newhead
 }
