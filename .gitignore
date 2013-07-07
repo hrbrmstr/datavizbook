@@ -4,6 +4,7 @@
 Icon
 .RProj.user
 *.RProj
+.Rhistory
 
 
 # Thumbnails
@@ -13,3 +14,4 @@ Icon
 .Spotlight-V100
 .Trashes
 rcode/.Rhistory
+.Rproj.user

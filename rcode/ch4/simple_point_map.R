@@ -34,9 +34,13 @@ world <- map_data("world")
 world <- world[-which(world$region=="Antarctica"), ]
 # projections do ?mapproj
 # mercator, sinusoidal, cylindrical, mollweide, gilbert
-ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group), colour="#CCCCCC") + coord_map("gilbert") +
+ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group), colour="#CCCCCC") + coord_map("mercator") +
+  scale_x_continuous(limits = c(-200, 200)) + # weird fix for linex across the map
   geom_point(data=za, aes(long, lat), colour="#00009902", size=1.5) + theme_plain()
-  
+ 
+# testing lines across top
+#world <- data.frame(map("world", plot=FALSE)[c("x","y")])
+#ggplot( world, aes(x=x,y=y)) + geom_path( ) +coord_map() + scale_x_continuous(limits=(c(-200,200)))
 # now just the state data
 state <- map_data("state")
 # want a function to just pull US points
@@ -45,27 +49,113 @@ inbetween <- function(data, arange) {
 }
 za.state <- za[inbetween(za$lat, range(state$lat)), ]
 za.state <- za.state[inbetween(za.state$long, range(state$long)), ]
+# there is the potwin,KS problem:
+za.state <- za.state[-which(za.state$lat==38 & za.state$long==-97), ]
 ggplot() + geom_path(data=state, aes(x=long, y=lat, group=group), colour="#CCCCCC") + coord_map("mercator") +
   geom_point(data=za.state, aes(long, lat), colour="#000099", alpha=1/10, size=1) + theme_plain()
 
-# ggplot(za, aes(y, x)) + geom_point(colour="#0000FF11")
-# ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group)) + geom_point(data=za, aes(y,x))
-# ggplot(world, aes(x=long, y=lat, group=group)) + geom_path() + coord_map("mercator") + 
-#   geom_point(data=za, aes(x=y, y=x))
-# 
-# p <- ggplot()
-# p <- p + geom_polygon( data=states, aes(x=long, y=lat, group = group),colour="white" )
-# p <- p + geom_point( data=mydata, aes(x=long, y=lat, size = enrollment), color="coral1") + scale_size(name="Total enrollment")
-# p <- p + geom_text( data=mydata, hjust=0.5, vjust=-0.5, aes(x=long, y=lat, label=label), colour="gold2", size=4 )
-# p
+zstate <- latlong2state(data.frame(x=za.state$long, y=za.state$lat))
+za.state <- cbind(za.state, data.frame(state=zstate))
+colour <- ifelse(is.na(za.state$state), "red", "blue")
+za.state <- cbind(za.state, data.frame(col=colour))
+ggplot() + geom_path(data=state, aes(x=long, y=lat, group=group), colour="#CCCCCC") + coord_map("mercator") +
+  geom_point(data=za.state, aes(long, lat, colour=col), alpha=1/8, size=2) + theme_plain()
+
+# now just take out the points
+za.state <- za.state[-which(is.na(za.state$state)), ]
+ggplot() + geom_path(data=state, aes(x=long, y=lat, group=group), colour="#CCCCCC") + coord_map("mercator") +
+  geom_point(data=za.state, aes(long, lat), colour="#000099", alpha=1/10, size=1) + theme_plain()
+
+# now condense for a choropleth:
+state.count <- data.frame(table(za.state$state))
+colnames(state.count) <- c("region", "count")
+za2 <- merge(state, state.count)
+
+# not helpful.
+ggplot(za2, aes(x=long, y=lat, group=group, fill=count)) + geom_polygon(colour="black") +
+  coord_map("polyconic") + theme_plain()
+
+# lets try "above average" and "below average"
+za2$average <- ifelse(za2$count > mean(state.count$count), "Above", "Below")
+ggplot(za2, aes(x=long, y=lat, group=group, fill=average)) + geom_polygon(colour="black") +
+  coord_map("polyconic") + theme_plain()
+
+# taken from winston
+#ggplot(za2, aes(map_id = state, fill=count)) + geom_map(map=states, colour="black") + 
+#  scale_fill_gradient2(low="#559999", mid="grey90", high="#BB650B", midpoint=median(za2$count)) +
+#  expand_limits(x=states$long, y=states_map$lat) + coord_map("polyconic")
+
+# this is a good point to talk "base rate fallacy"
+
+# copy and pasted table from http://www.internetworldstats.com/stats26.htm
+users <- read.csv("state-internets.csv", header=T)
+users$state <- tolower(users$state)
+za3 <- merge(za2, users, by.x="region", by.y="state")
+
+# look as a proportion of population:
+za3$ofpop <- za3$count/za3$population
+temp.za <- aggregate(ofpop ~ region, data=za3, FUN=mean )
+za3$pop.average <- ifelse(za3$ofpop>mean(temp.za$ofpop), "Above", "Below")
+ggplot(za3, aes(x=long, y=lat, group=group, fill=pop.average)) + geom_polygon(colour="black") +
+  coord_map("polyconic") + theme_plain()
+
+# still not quite right, how about as a proportion of internet users
+za3$ofinternet <- za3$count/za3$internet
+temp.za <- aggregate(ofinternet ~ region, data=za3, FUN=mean )
+za3$int.average <- ifelse(za3$ofinternet>mean(temp.za$ofinternet), "Above", "Below")
+ggplot(za3, aes(x=long, y=lat, group=group, fill=int.average)) + geom_polygon(colour="black") +
+  coord_map("polyconic") + theme_plain()
+
+# how about as a continuous (diverging) color?
+ggplot(za3, aes(x=long, y=lat, group=group, fill=ofinternet)) + geom_polygon(colour="black") +
+  scale_fill_gradient2(low="#559999", mid="grey90", high="#BB650B", midpoint=mean(za3$ofinternet)) +
+  coord_map("polyconic") + theme_plain()
+
+ggplot(za3, aes(x=long,  y=lat, group=group, fill=internet)) + geom_polygon(colour="black") +
+  scale_fill_gradient2(low="#018571", mid="grey90", high="#BB650B", midpoint=median(users$internet)) +
+  coord_map("stereographic") + theme_plain()
+
+# may want to split into 5 groups or something for more fun
+# okay, let's run to county level
+
 
 # code below is also a gist on github somewhere
+# https://gist.github.com/rweald/4720788
 
 ## This code taken from http://stackoverflow.com/questions/8751497/latitude-longitude-coordinates-to-state-code-in-r
 
 # The single argument to this function, pointsDF, is a data.frame in which:
 #   - column 1 contains the longitude in degrees (negative in the US)
 #   - column 2 contains the latitude in degrees
+latlong2county <- function(pointsDF) {
+  # Prepare SpatialPolygons object with one SpatialPolygon
+  # per state (plus DC, minus HI & AK)
+  states <- map('county', fill=TRUE, col="transparent", plot=FALSE)
+  IDs <- sapply(strsplit(states$names, ":"), function(x) x[1])
+  states_sp <- map2SpatialPolygons(states, IDs=IDs,
+                                   proj4string=CRS("+proj=longlat +datum=wgs84"))
+  
+  # Convert pointsDF to a SpatialPoints object 
+  pointsSP <- SpatialPoints(pointsDF, 
+                            proj4string=CRS("+proj=longlat +datum=wgs84"))
+  
+  # Use 'over' to get _indices_ of the Polygons object containing each point 
+  indices <- over(pointsSP, states_sp)
+  
+  # Return the state names of the Polygons object containing each point
+  stateNames <- sapply(states_sp@polygons, function(x) x@ID)
+
+  stateNames[indices]
+}
+
+mksimple <- function(x) {
+  if (!is.na(x)) {
+    ret <- data.frame(long=c(NA), lat=c(NA))
+  } else {
+    splitvec <- unlist(strsplit(x, ','))
+    ret <- data.frame(region=unlist)
+  }
+}
 
 latlong2state <- function(pointsDF) {
   # Prepare SpatialPolygons object with one SpatialPolygon
