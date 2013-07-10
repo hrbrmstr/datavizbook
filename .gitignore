@@ -17,6 +17,7 @@ rcode/.Rhistory
 <<<<<<< HEAD
 # History files
 .Rhistory
+.RData
 
 # Example code in package build process
 *-Ex.R

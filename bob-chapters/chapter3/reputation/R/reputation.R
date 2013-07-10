@@ -7,6 +7,7 @@
 # URL for the AlienVault IP Reputation Database (OSSIM format)
 # storing the URL in a variable makes it easier to modify later
 # if it changes
+setwd("~/Dropbox/datavizbook/bob-chapters/chapter3/reputation")
 
 library(plyr)
 

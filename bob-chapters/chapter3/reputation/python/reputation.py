@@ -37,12 +37,28 @@ av.columns = ["IP","Reliability","Risk","Type","Country",
               "Locale","Coords","x"]
 #print av
 
-risk = pd.Categorical.from_array(av['Reliability'])
-print risk.levels
+# summary_col(col)
+# 
+# helper function to mimic R's "summary()" function
+#
+def summary_col(col):
+    factor = pd.Categorical.from_array(col)
+    return pd.value_counts(factor,sort=True).reindex(factor.levels)
 
+print summary_col(av['Reliability'])
+print summary_col(av['Risk'])
+print summary_col(av['Type'])
+print summary_col(av['Country'])
 
-#print pd.Factor.from_array(av.Reliability)
-#print av.groupby(['Reliability']).sum()
-#print av.groupby(['Risk']).sum()
-#print av.groupby(['Type']).sum()
-#print av.groupby(['Country']).sum()
+# f_reliability = pd.Categorical.from_array(av['Reliability'])
+# print pd.value_counts(f_reliability)
+
+# f_risk = pd.Categorical.from_array(av['Risk'])
+# print pd.value_counts(f_risk)
+
+# f_type = pd.Categorical.from_array(av['Type'])
+# print pd.value_counts(f_type)
+
+# f_country = pd.Categorical.from_array(av['Country'])
+# print pd.value_counts(f_country)
+
