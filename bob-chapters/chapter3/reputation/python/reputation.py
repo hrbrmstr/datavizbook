@@ -29,9 +29,20 @@ if not os.path.isfile(avRep):
 av = pd.read_csv(avRep,sep="#")
 
 # take a quick look at the dat
-print(av)
+#print(av)
 
 # assign more readable column names to make it easier to work with the data 
 # IP | reliability | risk | type | country | locale | coords | x
-av.columns = ["IP","Reliability","Risk","Type","Country","Locale","Coords","x"]
+av.columns = ["IP","Reliability","Risk","Type","Country",
+              "Locale","Coords","x"]
+#print av
 
+risk = pd.Categorical.from_array(av['Reliability'])
+print risk.levels
+
+
+#print pd.Factor.from_array(av.Reliability)
+#print av.groupby(['Reliability']).sum()
+#print av.groupby(['Risk']).sum()
+#print av.groupby(['Type']).sum()
+#print av.groupby(['Country']).sum()
