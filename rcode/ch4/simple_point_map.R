@@ -178,3 +178,16 @@ latlong2state <- function(pointsDF) {
 }
 zero <- read.csv("/home/jay/mac/zerogeo.csv", header=T)
 states <- map_data("state")
+
+
+clients <- read.csv("~/mac/book/data/clients.csv", header=T)
+client.names <- clients$client
+clients <- subset(clients, select=-c(client))
+clients <- sapply(clients, function(x) ifelse(x>0, 1, 0))
+foo <- rowSum(clients)
+saved <- data.frame(count=foo[which(foo>3)], host=client.names[which(foo>3)])
+head(allsave[with(allsave, order(-count)), ])
+
+clients <- read.csv("~/mac/book/data/geoclient.csv", header=F)
+za <- data.frame(lat=clients$V8, long=clients$V9)
+clients <- clients[-which(is.na(clients$V8)), ]
