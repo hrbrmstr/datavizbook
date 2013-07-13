@@ -26,14 +26,27 @@ if (file.access(avRep)) {
 # read in the IP reputation db into a data frame
 av <- read.csv(avRep,sep="#",stringsAsFactors=FALSE)
 
-# take a quick look at the data
-head(av)
+str(av)
 
 # assign more readable column names to make it easier to work with the data 
 # IP | reliability | risk | type | country | locale | coords | x
 colnames(av) <- c("IP","Reliability","Risk","Type","Country","Locale","Coords","x")
 
+# take a quick look at the data
+head(av)
+
 summary(av)
+
+colMode <- function(n) {
+  siftedUnique <- unique(n)
+  siftedUnique[which.max(tabulate(match(n, siftedUnique)))]
+}
+
+summary(av$Reliability)
+summary(av$Risk)
+
+colMode(av$Reliability)
+colMode(av$Risk)
 
 summary(factor(av$Reliability))
 summary(factor(av$Risk))
@@ -62,3 +75,28 @@ malware.domain <- av[grep("Malware Domain",av$Type),]
 malware.ip <- av[grep("Malware IP",av$Type),]
 malware.distribution <- av[grep("Malware distribution",av$Type),]
 malicious.host <- av[grep("Malicious Host",av$Type),]
+
+
+opar = par()
+par(mar=c(5.1,15,4.1,2.1))
+for(rsk in 1:7) {
+  f <- summary(factor(av[(av$Risk == rsk),]$Type))
+  bp <- barplot(f, horiz=TRUE, yaxt='n',main=sprintf("Types by Risk Level of %d",rsk)) 
+  axis(2, at=bp, labels=names(f), tick=FALSE, las=2) 
+}
+par(opar)
+
+
+library(maps)
+df = data.frame(table(factor(av$Country)))
+colnames(df) = c("country","value")
+df$col = heat.colors(100)[floor(rescale(df$value,c(1,100)))]
+#df$col = floor(rescale(df$value,c(1,50)))
+df = df[df$country == "US",]
+map("world",
+    regions = df$country,
+    lty = 1, lwd =1,
+    boundary=TRUE,
+    fill=TRUE,
+    col=df$col)
+

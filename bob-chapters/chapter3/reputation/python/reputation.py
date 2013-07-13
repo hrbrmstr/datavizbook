@@ -15,6 +15,7 @@ import pandas as pd
 
 avURL = "http://reputation.alienvault.com/reputation.data"
 
+os.chdir("/Users/n0179200/Dropbox/datavizbook/bob-chapters/chapter3/reputation")
 # relative path for the downloaded data
 avRep = "data/reputation.data"
 
@@ -29,7 +30,7 @@ if not os.path.isfile(avRep):
 av = pd.read_csv(avRep,sep="#")
 
 # take a quick look at the dat
-#print(av)
+print(av)
 
 # assign more readable column names to make it easier to work with the data 
 # IP | reliability | risk | type | country | locale | coords | x
@@ -37,28 +38,39 @@ av.columns = ["IP","Reliability","Risk","Type","Country",
               "Locale","Coords","x"]
 #print av
 
-# summary_col(col)
+av.head(10)
+
+av['Reliability'].describe()
+av['Risk'].describe()
+
+from scipy.stats import mode
+mode(av['Reliability'])
+mode(av['Risk'])
+
+# factor_col(col)
 # 
 # helper function to mimic R's "summary()" function
+# for pandas "columns" (which are really just Python
+# arrays)
 #
-def summary_col(col):
+def factor_col(col):
     factor = pd.Categorical.from_array(col)
     return pd.value_counts(factor,sort=True).reindex(factor.levels)
 
-print summary_col(av['Reliability'])
-print summary_col(av['Risk'])
-print summary_col(av['Type'])
-print summary_col(av['Country'])
+print factor_col(av['Reliability'])
+print factor_col(av['Risk'])
+print factor_col(av['Type'])
+print factor_col(av['Country'])
 
-# f_reliability = pd.Categorical.from_array(av['Reliability'])
-# print pd.value_counts(f_reliability)
+barcol = "#762A83"
 
-# f_risk = pd.Categorical.from_array(av['Risk'])
-# print pd.value_counts(f_risk)
+# We want the country counts sorted
+country_ct = pd.value_counts(av['Country'])
+country_ct[:20].plot(kind='bar', rot=0, color=barcol, title="Summary By Country");
+factor_col(av['Reliability']).plot(kind='bar', rot=0, color=barcol, title="Summary By Reliability")
+factor_col(av['Risk']).plot(kind='bar', rot=0, color=barcol, title="Summary By Risk")
 
-# f_type = pd.Categorical.from_array(av['Type'])
-# print pd.value_counts(f_type)
 
-# f_country = pd.Categorical.from_array(av['Country'])
-# print pd.value_counts(f_country)
+
+
 
