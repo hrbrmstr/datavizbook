@@ -1,5 +1,7 @@
-#
+# 
 # reputation.R
+#
+# prbly need to rename to ch3.R
 #
 # sample analysis script for AlienVault IP Reputation Database data
 #
@@ -8,8 +10,6 @@
 # storing the URL in a variable makes it easier to modify later
 # if it changes
 setwd("~/Dropbox/datavizbook/bob-chapters/chapter3/reputation")
-
-library(plyr)
 
 avURL <- "http://reputation.alienvault.com/reputation.data"
 
@@ -38,7 +38,7 @@ head(av)
 
 summary(av)
 
-colMode <- function(n) {
+colmode <- function(n) {
   siftedUnique <- unique(n)
   siftedUnique[which.max(tabulate(match(n, siftedUnique)))]
 }
@@ -46,43 +46,34 @@ colMode <- function(n) {
 summary(av$Reliability)
 summary(av$Risk)
 
-colMode(av$Reliability)
-colMode(av$Risk)
+# use the fact that we can index into an R
+# table() to mimic Python’s mode() function output 
+colmode(av$Reliability)
+table(av$Reliability)[colmode(av$Reliability)]
+
+colmode(av$Risk)
+table(av$Risk)[colmode(av$Risk)]
 
 summary(factor(av$Reliability))
 summary(factor(av$Risk))
 summary(factor(av$Type))
 summary(factor(av$Country))
 
-# #8C510A #D8B365 #F6E8C3 #C7EAE5 #5AB4AC #01665E
-
-# #762A83
-
-barcol = "#8C510AFF"
-barcol = "#762A83AA"
+palette = c("#BF6363", "#5DD8A3", "#589DB9", "#B4D05A", "#BD8C3B", "#B586B6", "#527E49")
+barcol = palette[1]
 
 opar = par()
 par(mfrow=c(3,1))
-barplot(head(summary(factor(av$Country)),20),col=barcol,main="Summary By Country",xlab="Country")
-barplot(summary(factor(av$Risk)),col=barcol,main="Summary by 'Risk'",xlab="Host 'Risk' Level")
-barplot(summary(factor(av$Reliability)),col=barcol,main="Summary by Rating Reliability",xlab="Reliability")
+barplot(head(summary(factor(av$Country)),20),col=palette[1],main="Summary By Country",xlab="Country")
+barplot(summary(factor(av$Risk)),col=palette[2],main="Summary by 'Risk'",xlab="Node 'Risk' Level")
+barplot(summary(factor(av$Reliability)),col=palette[3],main="Summary by Rating Reliability",xlab="Reliability")
 par(opar)
-
-apt <- av[grep("APT",av$Type),]
-scanning <- av[grep("Scanning Host",av$Type),]
-spamming <- av[grep("Spamming",av$Type),]
-candc <- av[grep("C&C",av$Type),]
-malware.domain <- av[grep("Malware Domain",av$Type),]
-malware.ip <- av[grep("Malware IP",av$Type),]
-malware.distribution <- av[grep("Malware distribution",av$Type),]
-malicious.host <- av[grep("Malicious Host",av$Type),]
-
 
 opar <- par()
 par(mar=c(5.1,15,4.1,2.1))
 for(rsk in 1:7) {
   f <- summary(factor(av[(av$Risk == rsk),]$Type))
-  bp <- barplot(f, horiz=TRUE, yaxt='n',main=sprintf("Types by Risk Level of %d",rsk)) 
+  bp <- barplot(f, horiz=TRUE, yaxt='n', col=palette[4], main=sprintf("Types by Risk Level of %d",rsk)) 
   axis(2, at=bp, labels=names(f), tick=FALSE, las=2) 
 }
 par(opar)
@@ -103,7 +94,7 @@ opar <- par()
 par(mar=c(5.1,15,4.1,2.1))
 f <- summary(factor(risky$Type))
 f <- f[order(-f)]
-bp <- barplot(f, horiz=TRUE, yaxt='n',col=barcol,main="Risky Types")
+bp <- barplot(f, horiz=TRUE, yaxt='n',col=palette[5 ],main="Risky Types")
 axis(2, at=bp, labels=names(f[]), tick=FALSE, las=2) 
 par(opar)
 
@@ -123,12 +114,12 @@ times <- sapply(tmp,length)
 # step of using rep() to expand each column but the
 # size number of split elements on the Type field.
 risky <- data.frame(cbind(IP=rep(risky$IP, times),
-      Reliability=rep(risky$Reliability, times),
-      Risk=rep(risky$Risk, times),
-      Type=unlist(tmp),
-      Country=rep(risky$Country, times),
-      Locale=rep(risky$Locale, times),
-      Coords=rep(risky$Coords, times)))
+                          Reliability=rep(risky$Reliability, times),
+                          Risk=rep(risky$Risk, times),
+                          Type=unlist(tmp),
+                          Country=rep(risky$Country, times),
+                          Locale=rep(risky$Locale, times),
+                          Coords=rep(risky$Coords, times)))
 nrow(risky)
 risky.types <- summary(factor(risky$Type))
 risky.types <- risky.types[order(-risky.types)]
@@ -151,13 +142,13 @@ par(mar=c(5.1,10,4.1,2.1),mfrow=c(2,1))
 
 av.x.types <- summary(factor(av.expanded$Type))
 av.x.types <- av.x.types[order(av.x.types)]
-bp <- barplot(av.x.types, horiz=TRUE, yaxt='n',col=barcol, main="All Nodes Broken Down By Type")
+bp <- barplot(av.x.types, horiz=TRUE, yaxt='n',col=palette[1], main="All Nodes Broken Down By Type")
 axis(2, at=bp, labels=names(av.x.types), tick=FALSE, las=2) 
 
 risky.types <- summary(factor(risky$Type))
 risky.types <- risky.types[order(risky.types)]
 risky.types
-bp2 <- barplot(risky.types, horiz=TRUE, yaxt='n',col=barcol, main="Higher Risk Nodes Broken Down By Type")
+bp2 <- barplot(risky.types, horiz=TRUE, yaxt='n',col=palette[1], main="Higher Risk Nodes Broken Down By Type")
 axis(2, at=bp2, labels=names(risky.types), tick=FALSE, las=2) 
 
 par(opar)
@@ -170,7 +161,7 @@ risky.cc
 
 
 us.locales <- summary(factor(risky[(risky$Country == "US"),]$Locale))
-head(us.locales[order(-l)],10)
+head(us.locales[order(-us.locales)],10)
 
 # retrieve IANA prefix list
 ianaURL <- "http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.csv"
@@ -199,8 +190,7 @@ desig <- summary(factor(av$Designation))
 desig <- desig[order(-desig)]
 desig
 
-df = data.frame(table(iana$Designation),stringsAsFactors=FALSE)
-colnames(df) = c("reg","ct")
-av.reg = df[df$reg %in% names(desig),]
+df <- data.frame(table(iana$Designation),stringsAsFactors=FALSE)
+colnames(df) <- c("reg","ct")
+av.reg <- df[df$reg %in% names(desig),]
 av.reg[with(av.reg, order(-ct)),]
-

@@ -1,5 +1,12 @@
 library(vcd)
 
+pal <- function(col, border = "light gray", ...) {
+  n <- length(col)
+  plot(0, 0, type = "n", xlim = c(0, 1), ylim = c(0, 1),
+       axes = FALSE, xlab = "", ylab = "", ...)
+  rect(0:(n-1)/n, 0, 1:n/n, 1, col = col, border = border)
+}
+
 # qualitative palettes
 pal(rainbow_hcl(4, start =  30, end = 300))
 pal(rainbow_hcl(4, start =  60, end = 240))
@@ -18,3 +25,4 @@ pal(diverge_hcl(7))
 pal(diverge_hcl(7, c = 100, l = c(50, 90), power = 1))
 pal(diverge_hcl(7, h = c(130, 43), c = 100, l = c(70, 90)))
 pal(diverge_hcl(7, h = c(180, 330), c = 59, l = c(75, 95)))
+
