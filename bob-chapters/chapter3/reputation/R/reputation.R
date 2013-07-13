@@ -26,6 +26,7 @@ if (file.access(avRep)) {
 # read in the IP reputation db into a data frame
 av <- read.csv(avRep,sep="#",stringsAsFactors=FALSE)
 
+
 str(av)
 
 # assign more readable column names to make it easier to work with the data 
@@ -202,3 +203,4 @@ df = data.frame(table(iana$Designation),stringsAsFactors=FALSE)
 colnames(df) = c("reg","ct")
 av.reg = df[df$reg %in% names(desig),]
 av.reg[with(av.reg, order(-ct)),]
+
