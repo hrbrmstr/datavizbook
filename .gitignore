@@ -5,6 +5,7 @@ Icon
 .RProj.user
 *.RProj
 .Rhistory
+.RData
 
 
 # Thumbnails
@@ -17,7 +18,6 @@ rcode/.Rhistory
 <<<<<<< HEAD
 # History files
 .Rhistory
-.RData
 
 # Example code in package build process
 *-Ex.R

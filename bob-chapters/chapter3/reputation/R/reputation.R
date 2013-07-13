@@ -77,7 +77,7 @@ malware.distribution <- av[grep("Malware distribution",av$Type),]
 malicious.host <- av[grep("Malicious Host",av$Type),]
 
 
-opar = par()
+opar <- par()
 par(mar=c(5.1,15,4.1,2.1))
 for(rsk in 1:7) {
   f <- summary(factor(av[(av$Risk == rsk),]$Type))
@@ -86,17 +86,119 @@ for(rsk in 1:7) {
 }
 par(opar)
 
+# "low" reliability and "low" (and above) risk
+nrow(av[(av$Reliability>2) & (av$Risk>3),])
 
-library(maps)
-df = data.frame(table(factor(av$Country)))
-colnames(df) = c("country","value")
-df$col = heat.colors(100)[floor(rescale(df$value,c(1,100)))]
-#df$col = floor(rescale(df$value,c(1,50)))
-df = df[df$country == "US",]
-map("world",
-    regions = df$country,
-    lty = 1, lwd =1,
-    boundary=TRUE,
-    fill=TRUE,
-    col=df$col)
+# "medium" reliability and "medim" (and above) risk
+nrow(av[(av$Reliability>4) & (av$Risk>3),]) 
 
+# what makes these nodes "risky"?
+risky <- av[(av$Reliability>4) & (av$Risk>3),]
+risky.types <- summary(factor(risky$Type))
+risky.types <- risky.types[order(-risky.types)]
+risky.types
+
+opar <- par()
+par(mar=c(5.1,15,4.1,2.1))
+f <- summary(factor(risky$Type))
+f <- f[order(-f)]
+bp <- barplot(f, horiz=TRUE, yaxt='n',col=barcol,main="Risky Types")
+axis(2, at=bp, labels=names(f[]), tick=FALSE, las=2) 
+par(opar)
+
+risky <- av[(av$Reliability>4) & (av$Risk>3),]
+# strsplit will split the Type column field into multiple
+# values whenever it comes across a ";" and will return a list
+# of the same length as the original column, but each entry 
+# will be a vector of "splits". 
+tmp <- strsplit(risky$Type,";")
+
+# this will run the "length()" function on every element
+# of our new vector and return it as a list
+times <- sapply(tmp,length)
+
+# we "re-make" the data frame by using cbind() to
+# combine our individual columns, but with the added
+# step of using rep() to expand each column but the
+# size number of split elements on the Type field.
+risky <- data.frame(cbind(IP=rep(risky$IP, times),
+      Reliability=rep(risky$Reliability, times),
+      Risk=rep(risky$Risk, times),
+      Type=unlist(tmp),
+      Country=rep(risky$Country, times),
+      Locale=rep(risky$Locale, times),
+      Coords=rep(risky$Coords, times)))
+nrow(risky)
+risky.types <- summary(factor(risky$Type))
+risky.types <- risky.types[order(-risky.types)]
+risky.types
+
+tmp <- strsplit(av$Type,";")
+times <- sapply(tmp,length)
+av.expanded <- data.frame(
+  cbind(IP=rep(av$IP, times),
+        Reliability=rep(av$Reliability, times),
+        Risk=rep(av$Risk, times),
+        Type=unlist(tmp),
+        Country=rep(av$Country, times),
+        Locale=rep(av$Locale, times),
+        Coords=rep(av$Coords, times),stringsAsFactors=FALSE),
+  stringsAsFactors=FALSE)
+
+opar <- par()
+par(mar=c(5.1,10,4.1,2.1),mfrow=c(2,1))
+
+av.x.types <- summary(factor(av.expanded$Type))
+av.x.types <- av.x.types[order(av.x.types)]
+bp <- barplot(av.x.types, horiz=TRUE, yaxt='n',col=barcol, main="All Nodes Broken Down By Type")
+axis(2, at=bp, labels=names(av.x.types), tick=FALSE, las=2) 
+
+risky.types <- summary(factor(risky$Type))
+risky.types <- risky.types[order(risky.types)]
+risky.types
+bp2 <- barplot(risky.types, horiz=TRUE, yaxt='n',col=barcol, main="Higher Risk Nodes Broken Down By Type")
+axis(2, at=bp2, labels=names(risky.types), tick=FALSE, las=2) 
+
+par(opar)
+
+
+summary(factor(risky$Country))
+risky.cc <- summary(factor(risky$Country))
+risky.cc <- risky.cc[order(-risky.cc)]
+risky.cc
+
+
+us.locales <- summary(factor(risky[(risky$Country == "US"),]$Locale))
+head(us.locales[order(-l)],10)
+
+# retrieve IANA prefix list
+ianaURL <- "http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.csv"
+ianaData <- "data/ipv4-address-space.csv"
+if (file.access(ianaData)) {
+  download.file(ianaURL,ianaData) 
+}
+
+iana <- read.csv(ianaData,stringsAsFactors=FALSE)
+
+# examine it
+str(iana)
+
+# clean up the iana prefix
+iana$Prefix <- sub("^(00|0)","",iana$Prefix,perl=TRUE)
+iana$Prefix <- sub("/8$","",iana$Prefix,perl=TRUE)
+head(iana$Prefix)
+
+# extract just the prefix from the AlienVault list
+av.IP.prefix <- sapply(strsplit(av$IP,'.',fixed=TRUE),"[",1)
+av$Designation <- sapply(av.IP.prefix,function(ip) {
+  iana[iana$Prefix == ip,]$Designation
+})
+
+desig <- summary(factor(av$Designation))
+desig <- desig[order(-desig)]
+desig
+
+df = data.frame(table(iana$Designation),stringsAsFactors=FALSE)
+colnames(df) = c("reg","ct")
+av.reg = df[df$reg %in% names(desig),]
+av.reg[with(av.reg, order(-ct)),]
