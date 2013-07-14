@@ -7,6 +7,8 @@ pal <- function(col, border = "light gray", ...) {
   rect(0:(n-1)/n, 0, 1:n/n, 1, col = col, border = border)
 }
 
+pal(c("#BF6363", "#5DD8A3", "#589DB9", "#B4D05A", "#BD8C3B", "#B586B6", "#527E49"))
+
 # qualitative palettes
 pal(rainbow_hcl(4, start =  30, end = 300))
 pal(rainbow_hcl(4, start =  60, end = 240))

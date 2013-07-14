@@ -77,6 +77,21 @@ len(av[(av['Reliability']>4) & (av['Risk']>3)])
 risky = av[(av['Reliability']>4) & (av['Risk']>3)]
 print pd.value_counts(risky['Type'])
 
+# make each entry an array
+tmp = risky['Type'].str.split(';')
+
+# expand the series
+tmp = tmp.apply(lambda x: pd.Series(x)).unstack()
+
+# join expanded series with original daa frame
+r2 = risky.join(pd.DataFrame(s.reset_index(level=0, drop=True)));
+
+# remove the NaN's
+risky = r2[pd.notnull(r2[0])]
+
+pd.value_counts(risky[0])
+
+
 # retrieve IANA prefix list
 ianaURL = "http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.csv"
 ianaData = "data/ipv4-address-space.csv"
@@ -99,5 +114,3 @@ av['Designation'] = [ iana[(iana['Prefix'] == prefix)].Designation
                       for prefix in avPrefix ]
 
 pd.value_counts(av['Designation'])
-
-
