@@ -22,7 +22,7 @@ if (file.access(avRep)) {
 }
 
 # read in the IP reputation db into a data frame
-av <- read.csv(avRep,sep="#",stringsAsFactors=FALSE)
+av <- read.csv(avRep,sep="#",stringsAsFactors=FALSE,header=FALSE)
 
 
 str(av)
