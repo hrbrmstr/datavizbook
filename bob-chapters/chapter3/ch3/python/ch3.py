@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# reputation.py
+# ch3.py
 #
 # sample analysis script for AlienVault IP Reputation Database data
 #

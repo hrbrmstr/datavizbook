@@ -1,7 +1,5 @@
 # 
-# reputation.R
-#
-# prbly need to rename to ch3.R
+# ch3.R
 #
 # sample analysis script for AlienVault IP Reputation Database data
 #
