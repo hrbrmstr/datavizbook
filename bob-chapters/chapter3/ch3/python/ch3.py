@@ -75,34 +75,52 @@ top10.astype(float) / len(av['Country'])
 pd.crosstab(av['Risk'], av['Reliability'])
 
 # graphical view of contingency table
-pd.crosstab(av['Reliability'], av['Risk']).plot(kind='bar')
+xtab = pd.crosstab(av['Reliability'], av['Risk'])
+plt.pcolor(xtab,cmap=cm.Blues)
+plt.yticks(arange(0.5,len(xtab.index), 1),xtab.index)
+plt.xticks(arange(0.5,len(xtab.columns), 1),xtab.columns)
+plt.colorbar()
 
 
+# generate random data to show the difference
 data = { 'rsk': randint(1, 7, 260000), 
          'rel': randint(1, 10, 260000) }
 tmp_df = pd.DataFrame(data, columns=['rsk', 'rel'])
 
-pd.crosstab(tmp_df['rel'], tmp_df['rsk']).plot(kind='bar')
+xtab = pd.crosstab(tmp_df['rel'], tmp_df['rsk'])
+plt.pcolor(xtab,cmap=cm.Blues)
+plt.yticks(arange(0.5,len(xtab.index), 1),xtab.index)
+plt.xticks(arange(0.5,len(xtab.columns), 1),xtab.columns)
+plt.colorbar()
 
-# "medium" reliability and "medim" (and above) risk
-len(av[(av['Reliability']>4) & (av['Risk']>3)])
 
-# what makes these nodes "risky"?
-risky = av[(av['Reliability']>4) & (av['Risk']>3)]
-print pd.value_counts(risky['Type'])
+av['newtype'] = av['Type']
+av[av['newtype'].str.contains(";")] = "Multiples"
+typ = av['newtype']
+rel = av['Reliability']
+rsk = av['Risk']
+xtab = pd.crosstab(typ, [ rel, rsk ], rownames=['typ'], colnames=['rel', 'rsk'])
+xtab.plot(kind='bar',legend=False)
 
-# make each entry an array
-tmp = risky['Type'].str.split(';')
+rrt_df = av[av['newtype'] != "Scanning Host"]
+typ =rrt_df['newtype']
+rel = rrt_df['Reliability']
+rsk = rrt_df['Risk']
+xtab = pd.crosstab(typ, [ rel, rsk ], rownames=['typ'], colnames=['rel', 'rsk'])
+xtab.plot(kind='bar',legend=False)
 
-# expand the series
-tmp = tmp.apply(lambda x: pd.Series(x)).unstack()
+rrt_df = rrt_df[rrt_df['newtype'] != "Malware distribution" ]
+rrt_df = rrt_df[rrt_df['newtype'] != "Malware Domain" ]
+typ =rrt_df['newtype']
+rel = rrt_df['Reliability']
+rsk = rrt_df['Risk']
 
-# join expanded series with original daa frame
-r2 = risky.join(pd.DataFrame(s.reset_index(level=0, drop=True)));
+print "Count: %d; Percent: %2.1f%%" % 
+      (len(rrt_df), (float(len(rrt_df)) / len(av)) * 100)
 
-# remove the NaN's
-risky = r2[pd.notnull(r2[0])]
+xtab = pd.crosstab(typ, [ rel, rsk ], rownames=['typ'], colnames=['rel', 'rsk'])
+xtab.plot(kind='bar',legend=False)
 
-pd.value_counts(risky[0])
+
 
 
