@@ -1,0 +1,10 @@
+Package: suda
+Type: Package
+Version: 1.0
+Date: 2013-07-17
+Title: Security Using Data Analysis
+Author: Jay Jacobs <jay@beechplane.com>
+Maintainer: Jay Jacobs <jay@beechplane.com>
+Description: The packages provides support functions for the
+        book "Security using Data Analysis, Visualization and Dashboards"
+License: GPL
