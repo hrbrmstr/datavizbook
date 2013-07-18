@@ -6,6 +6,9 @@ Icon
 *.RProj
 .Rhistory
 .RData
+suda.Rcheck
+rcode/ch4
+
 
 
 # Thumbnails
