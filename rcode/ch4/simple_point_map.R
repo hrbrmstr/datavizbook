@@ -4,6 +4,7 @@ library(maps)
 library(maptools)
 
 za <- read.csv("ZeroAccessGeoIPs.csv", header=F, stringsAsFactors=F)
+za <- read.csv("~/Documents/book/symantec/all.csv", header=F, stringsAsFactors=F)
 # splits out the second variable into a list of vectors
 za <- lapply(strsplit(za$V2, ","), as.numeric)
 
@@ -26,7 +27,7 @@ theme_plain <- function() {
 }
 
 # create just a simple scatter plot with bw theme
-ggplot(data=za, aes(x=long, y=lat)) + geom_point(size=1.5, color="#000099", alpha=1/10) + theme_bw()
+ggplot(data=za, aes(x=long, y=lat)) + geom_point(size=1, color="#000099", alpha=1/20) + theme_bw()
 
 # now grab the "world" data
 world <- map_data("world")
@@ -37,7 +38,7 @@ world <- world[-which(world$region=="Antarctica"), ]
 ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group), colour="#CCCCCC") + coord_map("mercator") +
   scale_x_continuous(limits = c(-200, 200)) + # weird fix for linex across the map
   geom_point(data=za, aes(long, lat), colour="#00009902", size=1.5) + theme_plain()
- 
+which 
 # testing lines across top
 #world <- data.frame(map("world", plot=FALSE)[c("x","y")])
 #ggplot( world, aes(x=x,y=y)) + geom_path( ) +coord_map() + scale_x_continuous(limits=(c(-200,200)))
@@ -64,7 +65,7 @@ ggplot() + geom_path(data=state, aes(x=long, y=lat, group=group), colour="#CCCCC
 # now just take out the points
 za.state <- za.state[-which(is.na(za.state$state)), ]
 ggplot() + geom_path(data=state, aes(x=long, y=lat, group=group), colour="#CCCCCC") + coord_map("mercator") +
-  geom_point(data=za.state, aes(long, lat), colour="#000099", alpha=1/10, size=1) + theme_plain()
+  geom_point(data=za.state, aes(long, lat), colour="#000099", alpha=1/30, size=1) + theme_plain()
 
 # now condense for a choropleth:
 state.count <- data.frame(table(za.state$state))
@@ -111,13 +112,32 @@ ggplot(za3, aes(x=long, y=lat, group=group, fill=ofinternet)) + geom_polygon(col
   scale_fill_gradient2(low="#559999", mid="grey90", high="#BB650B", midpoint=mean(za3$ofinternet)) +
   coord_map("polyconic") + theme_plain()
 
+# just internet users
 ggplot(za3, aes(x=long,  y=lat, group=group, fill=internet)) + geom_polygon(colour="black") +
   scale_fill_gradient2(low="#018571", mid="grey90", high="#BB650B", midpoint=median(users$internet)) +
   coord_map("stereographic") + theme_plain()
 
 # may want to split into 5 groups or something for more fun
+za3$quint <- cut_number(za3$ofinternet, 5)
+levels(za3$quint) <- c("Very Below Average", "Below Average", "Average", "Above Average", "Very Above Average")
+
+ggplot(za3, aes(x=long,  y=lat, group=group, fill=quint)) + geom_polygon(colour="#CCCCCCCC") +
+  scale_fill_brewer(palette = "RdBu") + 
+#  scale_fill_gradient2(low="#018571", mid="grey90", high="#BB650B", midpoint=median(users$internet)) +
+  coord_map("polyconic") + theme_plain()
 # okay, let's run to county level
 
+za3$peruser <- round(za3$internet/za3$count,0)
+za3$PerUser <- cut_number(za3$peruser, 5)
+ggplot(za3, aes(x=long,  y=lat, group=group, fill=PerUser)) + 
+  geom_polygon(size=.2, colour="#CCCCCCCC") +
+  scale_fill_manual(scale_name = "div", palette="suda.pal") +
+  coord_map("polyconic") + theme_plain()
+maxRows <- by(za3, za3$PerUser, function(X) max(X$peruser))
+levels(za3$PerUser) <- paste("< 1 in", as.vector(maxRows))
+
+#colours <- rainbow_hcl(4, start = 30, end = 300)
+#p %+% df2 + scale_fill_manual (values=colours)
 
 # code below is also a gist on github somewhere
 # https://gist.github.com/rweald/4720788

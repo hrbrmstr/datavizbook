@@ -1,4 +1,7 @@
-book/data/src
+library(ggplot2)
+library(ggmap)
+library(maps)
+library(maptools)
 
 all <- read.csv("~/mac/book/data/src/city_blocks.csv", header=T)
 # we are at 2,020,167 rows
@@ -15,13 +18,34 @@ usregion <- read.csv("~/mac/book/data/src/US_region_names.csv", header=T)
 full <- merge(full, usregion, all.x=T)
 state <- aggregate(count ~ region_code + region_name, data=full, FUN=sum)
 
-users <- read.csv("~/mac/book/data/src/state-internets.csv", header=T)
-allstates <- merge(state, users)
-foo <- lm(allstates$count ~ allstates$population + allstates$internet)
-summary(foo)
+# states
+#users <- read.csv("~/mac/book/data/src/state-internets.csv", header=T)
+#allstates <- merge(state, users)
+#foo <- lm(allstates$count ~ allstates$population + allstates$internet)
+#summary(foo)
+
+latlong2county <- function(pointsDF) {
+  # Prepare SpatialPolygons object with one SpatialPolygon
+  # per state (plus DC, minus HI & AK)
+  states <- map('county', fill=TRUE, col="transparent", plot=FALSE)
+  IDs <- sapply(strsplit(states$names, ":"), function(x) x[1])
+  states_sp <- map2SpatialPolygons(states, IDs=IDs,
+                                   proj4string=CRS("+proj=longlat +datum=wgs84"))
+  
+  # Convert pointsDF to a SpatialPoints object 
+  pointsSP <- SpatialPoints(pointsDF, 
+                            proj4string=CRS("+proj=longlat +datum=wgs84"))
+  
+  # Use 'over' to get _indices_ of the Polygons object containing each point 
+  indices <- over(pointsSP, states_sp)
+  
+  # Return the state names of the Polygons object containing each point
+  stateNames <- sapply(states_sp@polygons, function(x) x@ID)
+  
+  stateNames[indices]
+}
 
 
-latlong <- unique(data.frame(long=full$longitude, lat=full$latitude))latlong <- unique(data.frame(long=full$longitude, lat=full$latitude))
 latlong <- unique(data.frame(long=full$longitude, lat=full$latitude))
 llong <- latlong2county(latlong)
 latlong$county <- llong
