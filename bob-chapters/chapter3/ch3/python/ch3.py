@@ -15,7 +15,7 @@ import pandas as pd
 
 avURL = "http://reputation.alienvault.com/reputation.data"
 
-os.chdir("/Users/n0179200/Dropbox/datavizbook/bob-chapters/chapter3/reputation")
+os.chdir("/Users/n0179200/Dropbox/datavizbook/bob-chapters/chapter3/ch3")
 # relative path for the downloaded data
 avRep = "data/reputation.data"
 
@@ -43,10 +43,6 @@ av.head(10)
 av['Reliability'].describe()
 av['Risk'].describe()
 
-from scipy.stats import mode
-mode(av['Reliability'])
-mode(av['Risk'])
-
 # factor_col(col)
 # 
 # helper function to mimic R's "summary()" function
@@ -70,6 +66,24 @@ country_ct[:20].plot(kind='bar', rot=0, color=barcol, title="Summary By Country"
 factor_col(av['Reliability']).plot(kind='bar', rot=0, color=barcol, title="Summary By Reliability")
 factor_col(av['Risk']).plot(kind='bar', rot=0, color=barcol, title="Summary By Risk")
 
+
+# see percentages of top 10 'bad' countries
+top10 = pd.value_counts(av['Country'])[0:9] 
+top10.astype(float) / len(av['Country'])
+
+# compute contingency table for Risk/Reliability
+pd.crosstab(av['Risk'], av['Reliability'])
+
+# graphical view of contingency table
+pd.crosstab(av['Reliability'], av['Risk']).plot(kind='bar')
+
+
+data = { 'rsk': randint(1, 7, 260000), 
+         'rel': randint(1, 10, 260000) }
+tmp_df = pd.DataFrame(data, columns=['rsk', 'rel'])
+
+pd.crosstab(tmp_df['rel'], tmp_df['rsk']).plot(kind='bar')
+
 # "medium" reliability and "medim" (and above) risk
 len(av[(av['Reliability']>4) & (av['Risk']>3)])
 
@@ -92,25 +106,3 @@ risky = r2[pd.notnull(r2[0])]
 pd.value_counts(risky[0])
 
 
-# retrieve IANA prefix list
-ianaURL = "http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.csv"
-ianaData = "data/ipv4-address-space.csv"
-
-if not os.path.isfile(ianaData):
-    urllib.urlretrieve(ianaURL, filename=ianaData)
-
-iana = pd.read_csv(ianaData)
-
-iana # examine it
-
-# clean up the iana prefix
-iana['Prefix'] = iana['Prefix'].map(lambda x: str(int(x.rstrip("8").rstrip("/"))))
-iana['Prefix'] # examine it
-
-# extract just the prefix from the AlienVault list
-avPrefix = [ octet[0] for octet in av['IP'].str.split('.') ]
-
-av['Designation'] = [ iana[(iana['Prefix'] == prefix)].Designation 
-                      for prefix in avPrefix ]
-
-pd.value_counts(av['Designation'])
