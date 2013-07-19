@@ -131,10 +131,43 @@ za3$peruser <- round(za3$internet/za3$count,0)
 za3$PerUser <- cut_number(za3$peruser, 5)
 ggplot(za3, aes(x=long,  y=lat, group=group, fill=PerUser)) + 
   geom_polygon(size=.2, colour="#CCCCCCCC") +
-  scale_fill_manual(scale_name = "div", palette="suda.pal") +
+  scale_fill_brewer(palette = "RdBu") + 
+#  scale_fill_manual(scale_name = "div", palette="suda.pal") +
   coord_map("polyconic") + theme_plain()
 maxRows <- by(za3, za3$PerUser, function(X) max(X$peruser))
 levels(za3$PerUser) <- paste("< 1 in", as.vector(maxRows))
+
+# let's look for "Weird" states, e.g. beyond 3 standard deviations.
+foo <- aggregate(peruser ~ region, data=za3, FUN=median)
+foo.sd <- sd(foo$peruser)
+foo.mean <- mean(foo$peruser)
+foo$raw.z <- (foo$peruser-foo.mean)/foo.sd
+foo$z <- cut(trunc(foo$z), breaks=seq(-3, 3), 
+             labels=c("-2 to -3", "-1 to -2", "0 to -1", "0 to 1", "1 to 2", "2 to 3"))
+
+#foo$z <- factor(abs(trunc(foo$z)) + 1)
+#levels(foo$z) <- c("one", "two", "three")
+
+za4 <- merge(za3, foo)
+ggplot(za4, aes(x=long,  y=lat, group=group, fill=raw.z)) + 
+  geom_polygon(size=.2, colour="#CCCCCCCC") +
+  #scale_fill_brewer(palette = "RdBu") + 
+  scale_fill_gradient2(low="#018571", mid="grey90", high="#BB650B", midpoint=0) +
+  #  scale_fill_manual(scale_name = "div", palette="suda.pal") +
+  coord_map("polyconic") + theme_plain()
+
+# set up some regression analysis on population and internet users
+foo <- aggregate(count ~ region + population + internet, data=za4, FUN=median)
+model <- lm(count ~ internet + population, data=foo)
+summary(model)
+
+# set the graph to be 2x2 
+par(mfrow=c(2,2))
+# plot it
+plot(model)
+par(mfrow=c(1,1))
+
+
 
 #colours <- rainbow_hcl(4, start = 30, end = 300)
 #p %+% df2 + scale_fill_manual (values=colours)
