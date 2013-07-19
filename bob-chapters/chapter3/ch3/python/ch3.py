@@ -76,6 +76,8 @@ pd.crosstab(av['Risk'], av['Reliability'])
 
 # graphical view of contingency table
 xtab = pd.crosstab(av['Reliability'], av['Risk'])
+pd.crosstab(av['Risk'], av['Reliability'])
+fig = plt.figure(figsize=(14, 8), dpi=100)
 plt.pcolor(xtab,cmap=cm.Blues)
 plt.yticks(arange(0.5,len(xtab.index), 1),xtab.index)
 plt.xticks(arange(0.5,len(xtab.columns), 1),xtab.columns)
@@ -88,6 +90,8 @@ data = { 'rsk': randint(1, 7, 260000),
 tmp_df = pd.DataFrame(data, columns=['rsk', 'rel'])
 
 xtab = pd.crosstab(tmp_df['rel'], tmp_df['rsk'])
+pd.crosstab(av['Risk'], av['Reliability'])
+fig = plt.figure(figsize=(14, 8), dpi=100)
 plt.pcolor(xtab,cmap=cm.Blues)
 plt.yticks(arange(0.5,len(xtab.index), 1),xtab.index)
 plt.xticks(arange(0.5,len(xtab.columns), 1),xtab.columns)
