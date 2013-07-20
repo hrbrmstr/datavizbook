@@ -4,12 +4,12 @@ library(maps)
 library(maptools)
 
 za <- read.csv("ZeroAccessGeoIPs.csv", header=F, stringsAsFactors=F)
-za <- read.csv("~/Documents/book/symantec/all.csv", header=F, stringsAsFactors=F)
+za <- read.csv("~/Documents/book/symantec/all.csv", header=F)
 # splits out the second variable into a list of vectors
-za <- lapply(strsplit(za$V2, ","), as.numeric)
+#za <- lapply(strsplit(za$V2, ","), as.numeric)
 
 # unlists the vectors and casts them into a data.frame
-za <- data.frame(matrix(unlist(za), ncol=2, byrow=T))
+#za <- data.frame(matrix(unlist(za), ncol=2, byrow=T))
 # names the columns x and y
 colnames(za) <- c("lat", "long")
 #za$group <- 1
@@ -29,16 +29,36 @@ theme_plain <- function() {
 # create just a simple scatter plot with bw theme
 ggplot(data=za, aes(x=long, y=lat)) + geom_point(size=1, color="#000099", alpha=1/20) + theme_bw()
 
+# Note: map_date is from ggplot and the other functions are from maps and maptools
 # now grab the "world" data
 world <- map_data("world")
 # and strip out antarctica
-world <- world[-which(world$region=="Antarctica"), ]
+world <- subset(world, world$region!="Antarctica")
 # projections do ?mapproj
 # mercator, sinusoidal, cylindrical, mollweide, gilbert
 ggplot() + geom_path(data=world, aes(x=long, y=lat, group=group), colour="#CCCCCC") + coord_map("mercator") +
   scale_x_continuous(limits = c(-200, 200)) + # weird fix for linex across the map
   geom_point(data=za, aes(long, lat), colour="#00009902", size=1.5) + theme_plain()
-which 
+
+# choropleth of world
+zworld <- latlong2country(data.frame(x=za$long, y=za$lat))
+#za.world <- cbind(za, data.frame(country=zworld))
+world.count <- data.frame(table(zworld))
+colnames(world.count) <- c("region", "count")
+za2 <- merge(world, world.count)
+za.sort <- za2[with(za2, order(group, order)), ]
+
+ggplot(za.sort, aes(x=long, y=lat, group=group, fill=count)) + 
+  geom_path(colour="#666666") +  geom_polygon() +
+  scale_fill_gradient2(low="#FFFFFF", high="#4086AA", midpoint=median(za.sort$count)) +
+  xlim(c(-200, 200)) + ylim(c(-60,200)) + 
+  coord_map() + theme_plain()
+
+# lets try "above average" and "below average"
+za2$average <- ifelse(za2$count > mean(state.count$count), "Above", "Below")
+ggplot(za2, aes(x=long, y=lat, group=group, fill=average)) + geom_polygon(colour="black") +
+  coord_map("polyconic") + theme_plain()
+
 # testing lines across top
 #world <- data.frame(map("world", plot=FALSE)[c("x","y")])
 #ggplot( world, aes(x=x,y=y)) + geom_path( ) +coord_map() + scale_x_continuous(limits=(c(-200,200)))
@@ -168,6 +188,10 @@ plot(model)
 par(mfrow=c(1,1))
 
 
+
+## Note: could we zoom into something like New York, 
+## plot 2 choropleths, one on population by zip
+## another on density of IP by zip
 
 #colours <- rainbow_hcl(4, start = 30, end = 300)
 #p %+% df2 + scale_fill_manual (values=colours)
