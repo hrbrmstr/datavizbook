@@ -1,5 +1,6 @@
 library(maps)
 library(maptools)
+library(ggplot2)
 
 # code below is also a gist on github somewhere
 # https://gist.github.com/rweald/4720788
@@ -87,4 +88,20 @@ theme_plain <- function() {
         panel.margin = unit(0, "lines"),
         plot.margin = unit(c(0,0,0,0), "lines"),
         complete=TRUE)
+}
+latlong2map <- function(pointsDF, mapping) {
+  # Prepare SpatialPolygons object with one SpatialPolygon
+  # per state (plus DC, minus HI & AK)
+  local.map <- map(mapping, fill=TRUE, col="transparent", plot=FALSE)
+  IDs <- sapply(strsplit(local.map$names, ":"), function(x) x[1])
+  maps_sp <- map2SpatialPolygons(local.map, IDs=IDs,
+                                 proj4string=CRS("+proj=longlat +datum=wgs84"))
+  # Convert pointsDF to a SpatialPoints object
+  pointsSP <- SpatialPoints(pointsDF,
+                            proj4string=CRS("+proj=longlat +datum=wgs84"))
+  # Use 'over' to get _indices_ of the Polygons object containing each point
+  indices <- over(pointsSP, maps_sp)
+  # Return the state names of the Polygons object containing each point
+  mapNames <- sapply(maps_sp@polygons, function(x) x@ID)
+  mapNames[indices]
 }
