@@ -1,22 +1,23 @@
 \name{suda.pal}
 \alias{suda.pal}
-\title{suda.pal function}
+\title{Color palette generate for suda}
 \usage{
   suda.pal(n, type = "seq")
 }
 \arguments{
-  \item{n.}{number of colors to return}
+  \item{n}{number of colors to return}
 
-  \item{type.}{type of color palette}
+  \item{type}{type of color palette (dev, seq, qual)}
 }
 \description{
-  function to return colors for the book graphics
+  This will return n colors for graphic functions in the
+  book.
 }
 \details{
   Brief description
 }
 \examples{
-scale_fill_manual(values=suda.pal(3, "div"))
+color.values <- suda.pal(3, "div")
 }
 \author{
   Jay Jacobs

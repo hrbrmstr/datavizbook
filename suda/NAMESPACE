@@ -1,1 +1,4 @@
+export(latlong2map)
 export(suda.pal)
+import(maps)
+import(maptools)

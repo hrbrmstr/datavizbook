@@ -10,7 +10,7 @@
 #' @keywords palette
 #' @export
 #' @examples
-#'  scale_fill_manual(values=suda.pal(3, "div"))
+#'   color.values <- suda.pal(3, "div")
 suda.pal <- function(n, type="seq") {
   if(!(type %in% c("div", "seq", "qual"))){
     stop(paste(type,"is not a valid type of palette name for suda.pal\n"))
@@ -109,4 +109,42 @@ suda.pal <- function(n, type="seq") {
                             c(199,179,218,114,211,98,105,229,217,189,197,111),maxColorValue=255)
          ))  
 }                        
+
+#' Convert latitude/longitude pairs to areas from a map
+#'
+#' Given a data frame of lat and long pairs and a map type to load,
+#' this will convert the location to the region of the map.
+#' code is adapted from a gist on github
+#' https://gist.github.com/rweald/4720788
+#'
+#' @param pointsDF a data frame with long, lat in the columns
+#' @param mapping the map to load ("world", "states", "county")
+#' @author Jay Jacobs
+#' @keywords map
+#' @export
+#' @import maps
+#' @import maptools
+#' @examples
+#'   geo <- data.frame(long=runif(10, min=-120, max=-80), lat=runif(10, min=32, max=45))
+#'   states <- latlong2map(geo, "state")
+latlong2map <- function(pointsDF, mapping) {
+  # Prepare SpatialPolygons object with one SpatialPolygon
+  # per state (plus DC, minus HI & AK)
+  local.map <- map(mapping, fill=TRUE, col="transparent", plot=FALSE)
+  IDs <- sapply(strsplit(local.map$names, ":"), function(x) x[1])
+  maps_sp <- map2SpatialPolygons(local.map, IDs=IDs,
+                                   proj4string=CRS("+proj=longlat +datum=wgs84"))
+  
+  # Convert pointsDF to a SpatialPoints object 
+  pointsSP <- SpatialPoints(pointsDF, 
+                            proj4string=CRS("+proj=longlat +datum=wgs84"))
+  
+  # Use 'over' to get _indices_ of the Polygons object containing each point 
+  indices <- over(pointsSP, maps_sp)
+  
+  # Return the state names of the Polygons object containing each point
+  mapNames <- sapply(maps_sp@polygons, function(x) x@ID)
+  
+  mapNames[indices]
+}
 

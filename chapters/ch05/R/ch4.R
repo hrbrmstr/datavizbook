@@ -15,19 +15,22 @@ print(gg)
 
 # projections do ?mapproj
 
+# 34567890123456789012345678901234567890123456789012345678901234567890
+
 # now grab the "world" data
 world <- map_data("world")
-# nothing personal penguins, but strip out antarctica
+# nothing personal penguins, but strip out Antarctica
 world <- subset(world, world$region!="Antarctica")
 # load world data into ggplot object
-gg <- ggplot(data=world, aes(x=long, y=lat, group=group))
-# trace along the lat/long coords
-gg <- gg + geom_path(colour="gray70")
+gg <- ggplot(data=world, aes(x=long, y=lat))
+# trace along the lat/long coords by group
+gg <- gg + geom_path(aes(group=group), colour="gray70")
 # now project using the mercator projection
 gg <- gg + coord_map("mercator", xlim=c(-200, 200))
-gg <- gg + theme_bw()
-
-gg <- gg + scale_x_continuous(limits = c(-200, 200)) # weird fix for linex across the map
-gg <- gg + geom_point(data=za, aes(long, lat), colour="#00009902", size=1.5)
+# load up the points by overiding the default data set
+gg <- gg + geom_point(data=za, aes(long, lat), 
+                      colour="#000099", alpha=1/40, size=1)
+# add axes labels
+gg <- gg + xlab("Longitude") + ylab("Latitude")
 gg <- gg + theme_bw()
 print(gg)
