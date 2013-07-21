@@ -4,7 +4,7 @@
 # sample analysis script for AlienVault IP Reputation Database data
 #
 
-setwd("~/Dropbox/datavizbook/bob-chapters/chapter3/ch3")
+setwd("~/Dropbox/datavizbook/chapters/ch03")
 options(width=70)
 
 # Downlad the data file to a local director for processing

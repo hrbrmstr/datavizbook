@@ -15,7 +15,7 @@ import pandas as pd
 
 avURL = "http://reputation.alienvault.com/reputation.data"
 
-os.chdir("/Users/n0179200/Dropbox/datavizbook/bob-chapters/chapter3/ch3")
+os.chdir("/Users/n0179200/Dropbox/datavizbook/chapters/ch03")
 # relative path for the downloaded data
 avRep = "data/reputation.data"
 
@@ -58,13 +58,11 @@ print factor_col(av['Risk'])
 print factor_col(av['Type'])
 print factor_col(av['Country'])
 
-barcol = "#762A83"
-
 # We want the country counts sorted
 country_ct = pd.value_counts(av['Country'])
-country_ct[:20].plot(kind='bar', rot=0, color=barcol, title="Summary By Country");
-factor_col(av['Reliability']).plot(kind='bar', rot=0, color=barcol, title="Summary By Reliability")
-factor_col(av['Risk']).plot(kind='bar', rot=0, color=barcol, title="Summary By Risk")
+country_ct[:20].plot(kind='bar', rot=0, title="Summary By Country");
+factor_col(av['Reliability']).plot(kind='bar', rot=0, title="Summary By Reliability")
+factor_col(av['Risk']).plot(kind='bar', rot=0, title="Summary By Risk")
 
 
 # see percentages of top 10 'bad' countries
@@ -85,6 +83,7 @@ plt.colorbar()
 
 
 # generate random data to show the difference
+np.random.seed(1492)
 data = { 'rsk': randint(1, 7, 260000), 
          'rel': randint(1, 10, 260000) }
 tmp_df = pd.DataFrame(data, columns=['rsk', 'rel'])
