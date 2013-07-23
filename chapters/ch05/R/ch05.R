@@ -180,6 +180,8 @@ colnames(za.county) <- c("region", "subregion", "infections")
 
 
 foo <- read.csv("/Users/jay/Documents/book/data/src/county-census.csv", header=T)
+# notice the all.x here.
+# we want to understand what's missing
 za.county2 <- merge(foo, za.county, all.x=T)
 
 za.county2$pop2inf <- za.county2$infections/za.county2$pop
