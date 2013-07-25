@@ -16,11 +16,12 @@ latlong2county <- function(pointsDF) {
   states <- map('county', fill=TRUE, col="transparent", plot=FALSE)
   IDs <- sapply(strsplit(states$names, ":"), function(x) x[1])
   states_sp <- map2SpatialPolygons(states, IDs=IDs,
-                                   proj4string=CRS("+proj=longlat +datum=wgs84"))
+                  proj4string=CRS("+proj=longlat +datum=wgs84"))
+  # 34567890123456789012345678901234567890123456789012345678901234567890
   
   # Convert pointsDF to a SpatialPoints object 
   pointsSP <- SpatialPoints(pointsDF, 
-                            proj4string=CRS("+proj=longlat +datum=wgs84"))
+                  proj4string=CRS("+proj=longlat +datum=wgs84"))
   
   # Use 'over' to get _indices_ of the Polygons object containing each point 
   indices <- over(pointsSP, states_sp)
@@ -90,10 +91,11 @@ theme_plain <- function() {
         complete=TRUE)
 }
 latlong2map <- function(pointsDF, mapping) {
-  # Prepare SpatialPolygons object with one SpatialPolygon
-  # per state (plus DC, minus HI & AK)
+  # load up the map data
   local.map <- map(mapping, fill=TRUE, col="transparent", plot=FALSE)
+  # pull out the IDs from the name
   IDs <- sapply(strsplit(local.map$names, ":"), function(x) x[1])
+  # Prepare SpatialPolygons object 
   maps_sp <- map2SpatialPolygons(local.map, IDs=IDs,
                                  proj4string=CRS("+proj=longlat +datum=wgs84"))
   # Convert pointsDF to a SpatialPoints object
@@ -101,7 +103,8 @@ latlong2map <- function(pointsDF, mapping) {
                             proj4string=CRS("+proj=longlat +datum=wgs84"))
   # Use 'over' to get _indices_ of the Polygons object containing each point
   indices <- over(pointsSP, maps_sp)
-  # Return the state names of the Polygons object containing each point
+  # Return the names of the Polygons object containing each point
   mapNames <- sapply(maps_sp@polygons, function(x) x@ID)
+  # now return a vector of names that match the points
   mapNames[indices]
 }

@@ -89,6 +89,8 @@ sct <- data.frame(table(zstate[state.index]))
 colnames(sct) <- c("region", "count")
 # merge with state map data
 za.sct <- merge(state, sct)
+za.sct <- za.sct[with(za.sct, order(group, order)), ]
+
 # Now plot a choropleth using a diverging color
 colors <- suda.pal(5, "div")
 gg <- ggplot(za.sct, aes(x=long, y=lat, group=group, fill=count))
@@ -150,10 +152,21 @@ gg <- gg + scale_fill_gradient2(low=colors[5], mid=colors[3],
 gg <- gg + theme_plain()
 print(gg)
 
+# create a box plot of the count
+popbox <- boxplot(za.norm$count, 
+                  main="Distribution of Normalized State Infections")
+za.norm[za.norm$count %in% popbox$out, ]
+
 # z-score 
+# get the standard deviation
 za.sd <- sd(za.norm$count)
+# get the mean
 za.mean <- mean(za.norm$count)
+# now calculate the z-score and round to 1 decimal
 za.norm$z <- round((za.norm$count-za.mean)/za.sd, 1)
+# print a count of entries within each std dev
+print(table(abs(trunc(za.norm$z))+1))
+                         
 
 za.users <- merge(sct, users, by.x="region", by.y="state")
 za.users$pop2inf <- round(za.users$population/za.users$count, 0)
@@ -170,19 +183,38 @@ gg <- gg + scale_fill_gradient2(low=colors[5], mid=colors[3],
 gg <- gg + theme_plain()
 print(gg)
 
+set.seed(1492)
+mean(runif(100, min=98, max=102))
+
+#setting seed for reproducibility
+set.seed(1492)
+parts <- sapply(seq(10000), function(x) mean(runif(100, min=98, max=102)))
+range(parts)
+
 ## now to county
 county <- latlong2map(data.frame(x=za$long, y=za$lat), "county")
+# system.time({ county <- latlong2map(data.frame(x=za$long, y=za$lat), "county") }); flush.console();
 za.county <- county[which(!is.na(county) & za$lat!=38 & za$long!=-97)]
 county.count <- table(za.county)
+# need to convert "county, state" into a data frame
+# so we split it out by comma
 temp.list <- strsplit(names(county.count), ",")
-za.county <- data.frame(matrix(unlist(temp.list), ncol=2, byrow=T), as.vector(county.count))
-colnames(za.county) <- c("region", "subregion", "infections")
+# convert the list into a vector
+temp.list <- unlist(temp.list)
+# force the vector into a 2 column matrix, filling row by row
+temp.matrix <- matrix(temp.list, ncol=2, byrow=T)
+# and now create the data frame with the count of county infections
+za.county <- data.frame(temp.matrix, as.vector(county.count))
+# finally assign names to the fields
+# names match the field names in the county map_data 
+colnames(za.county) <- c("region", "subregion", "za")
 
 
-foo <- read.csv("/Users/jay/Documents/book/data/src/county-census.csv", header=T)
+county.census <- read.csv("data/county-census.csv", header=T)
 # notice the all.x here.
-# we want to understand what's missing
-za.county2 <- merge(foo, za.county, all.x=T)
+za.county <- merge(county.census, za.county, all.x=T)
+# replace all NA's in ZeroAccess counts with 0
+za.county$za[is.na(za.county$za)] <- 0
 
 za.county2$pop2inf <- za.county2$infections/za.county2$pop
 p2i.sd <- sd(za.county2$pop2inf)
@@ -194,18 +226,40 @@ za.county2$zlabel <- cut(trunc(za.county2$z), breaks=c(seq(-3, 3), 10),
 cols <- c(rev(brewer.pal(5, "BrBG")), "#AA3333")
 
 county <- map_data("county")
-county <- merge(county, za.county2)
+county <- merge(county, za.c)
 county <- county[with(county, order(group, order)), ]
 
-county$zcopy <- ifelse(county$z>3,3,county$z)
-gg <- ggplot(county, aes(x=long, y=lat, group=group, fill=z))
-gg <- gg + geom_polygon(colour="#66AA660F", alpha=1, line=0)
-gg <- gg + coord_map("polyconic")
-gg <- gg + scale_fill_gradient2(low=colors[5], mid=colors[3], 
+#county$zcopy <- ifelse(county$z>3,3,county$z)
+za.c$linf <- ifelse(za.c$infections==0, 0, log10(za.c$infections))
+za.c$lpop <- ifelse(za.c$pop==0, 0, log10(za.c$pop))
+
+gg.pop <- ggplot(county, aes(x=long, y=lat, group=group, fill=lpop))
+gg.pop <- gg.pop + geom_polygon(colour="#66AA660F", alpha=1, line=0)
+gg.pop <- gg.pop + coord_map("polyconic")
+gg.pop <- gg.pop + scale_fill_gradient2(low=colors[5], mid=colors[3], 
                                 high=colors[1], 
-                                midpoint=0)
-gg <- gg + theme_plain()
-print(gg)
-gg <- gg + scale_fill_manual(values=cols)
+                                midpoint=mean(county$lpop),
+                                        guide=F)
+gg.pop <- gg.pop + ggtitle("U.S. Population")
+gg.pop <- gg.pop + theme_plain()
+print(gg.pop)
+gg.inf <- ggplot(county, aes(x=long, y=lat, group=group, fill=linf))
+gg.inf <- gg.inf + geom_polygon(colour="#66AA660F", alpha=1, line=0)
+gg.inf <- gg.inf + coord_map("polyconic")
+gg.inf <- gg.inf + scale_fill_gradient2(low=colors[5], mid=colors[3], 
+                                high=colors[1], 
+                                midpoint=mean(county$linf),
+                                        guide=F)
+gg.inf <- gg.inf + ggtitle("ZeroAccess Infections")
+gg.inf <- gg.inf + theme_plain()
+print(gg.inf)
+library(gridExtra)
+grid.arrange(gg.inf, gg.pop)
 
-
+my.lm <- function(data, ...) {
+  local.data <- data[sample(nrow(data), size=50), ]
+  fit <- lm(data=local.data, ...)
+  local.data <- data[sample(nrow(data), size=50), ]
+  predict.lm(fit, newdata=local.data)
+}
+fit <- my.lm(infections ~ pop + college + income + poppermile, data=za.c)
