@@ -211,10 +211,26 @@ colnames(za.county) <- c("region", "subregion", "za")
 
 
 county.census <- read.csv("data/county-census.csv", header=T)
+ufo.in <- read.csv("data/pop-inc-ufo.csv")
 # notice the all.x here.
 za.county <- merge(county.census, za.county, all.x=T)
+za.county <- merge(ufo.in, za.county, all.x=T)
 # replace all NA's in ZeroAccess counts with 0
 za.county$za[is.na(za.county$za)] <- 0
+
+foo <- za.county[ , c(7,3,4,5,6)]
+foo$za[is.na(foo$za)] <- 0
+foo$za.log <- ifelse(foo$za==0, 0, log(foo$za))
+foo$pop.log <- ifelse(foo$pop==0, 0, log(foo$pop))
+foo$za.log <- log(foo$za)
+foo$pop.log <- log(foo$pop)
+ggpairs(foo)
+foo <- lm(za ~ pop + income + ufo2pop, data=za.county)
+foo <- lm(za ~ pop + income + ufo2010, data=za.county)
+
+fit <- lm(za ~ )
+sqrt(vif(fit)) > 2 # problem?
+
 
 za.county2$pop2inf <- za.county2$infections/za.county2$pop
 p2i.sd <- sd(za.county2$pop2inf)
