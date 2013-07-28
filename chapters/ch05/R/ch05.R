@@ -279,3 +279,38 @@ my.lm <- function(data, ...) {
   predict.lm(fit, newdata=local.data)
 }
 fit <- my.lm(infections ~ pop + college + income + poppermile, data=za.c)
+
+
+# trying some simple scatterplots
+library(scales)
+gg <- ggplot(data=za.county, aes(x=pop, y=za)) + geom_point()
+print(gg)
+
+gg <- ggplot(data=za.county, aes(x=pop, y=za)) + geom_point()
+gg <- gg + scale_y_continuous(trans=log10_trans())
+gg <- gg + scale_x_continuous(trans=log10_trans())
+print(gg)
+
+gg <- ggplot(data=za.county, aes(x=pop, y=za)) + geom_point()
+gg <- gg + scale_y_continuous(limits=c(0,300))
+gg <- gg + scale_x_continuous(limits=c(0,250000))
+print(gg)
+
+gg <- ggplot(data=za.county, aes(x=income, y=za)) + geom_point()
+gg <- gg + geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x)
+gg <- gg + scale_y_continuous(trans=log10_trans())
+gg <- gg + scale_x_continuous(trans=log10_trans())
+print(gg)
+
+library(car)
+sqrt(vif(foo)) > 2 # problem?
+foo <- lm(za ~ pop + income + ufo2pop, data=za.county)
+
+pvals <- NULL
+for(i in seq(1:1000)) {
+  model <- lm(za ~ pop + income, data=za.county[sample(nrow(za.county), 100), ])
+  model.summary <- summary(model)
+  #print(model.summary$r.squared)
+  #print(model.summary$coefficients[,4])
+  pvals <- c(pvals, model.summary$coefficients[3,4])
+}
