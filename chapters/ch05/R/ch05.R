@@ -310,7 +310,11 @@ pvals <- NULL
 for(i in seq(1:1000)) {
   model <- lm(za ~ pop + income, data=za.county[sample(nrow(za.county), 100), ])
   model.summary <- summary(model)
-  #print(model.summary$r.squared)
-  #print(model.summary$coefficients[,4])
   pvals <- c(pvals, model.summary$coefficients[3,4])
 }
+mean(pvals)
+summary(pvals)
+sum(pvals<0.05)
+
+#print(model.summary$r.squared)
+#print(model.summary$coefficients[,4])
