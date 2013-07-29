@@ -15,7 +15,7 @@ import pandas as pd
 
 avURL = "http://reputation.alienvault.com/reputation.data"
 
-os.chdir("/Users/n0179200/Dropbox/datavizbook/chapters/ch03")
+os.chdir("/home/suda/ch03")
 # relative path for the downloaded data
 avRep = "data/reputation.data"
 
