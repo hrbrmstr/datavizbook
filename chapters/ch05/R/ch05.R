@@ -1,4 +1,5 @@
 library(ggplot2)
+library(scales)
 # read the CSV with headers
 za <- read.csv("data/zeroaccess.csv", header=T)
 
@@ -209,12 +210,13 @@ za.county <- data.frame(temp.matrix, as.vector(county.count))
 # names match the field names in the county map_data 
 colnames(za.county) <- c("region", "subregion", "za")
 
-
+cdata <- read.csv("data/county-data.csv", header=T) # with ipaddr
 county.census <- read.csv("data/county-census.csv", header=T)
 ufo.in <- read.csv("data/pop-inc-ufo.csv")
 # notice the all.x here.
 za.county <- merge(county.census, za.county, all.x=T)
 za.county <- merge(ufo.in, za.county, all.x=T)
+za.county <- merge(cdata, za.county, all.x=T)
 # replace all NA's in ZeroAccess counts with 0
 za.county$za[is.na(za.county$za)] <- 0
 
@@ -241,37 +243,72 @@ za.county2$zlabel <- cut(trunc(za.county2$z), breaks=c(seq(-3, 3), 10),
              labels=c("-2 to -3", "-1 to -2", "0 to -1", "0 to 1", "1 to 2", "2 to 3", "outlier"))
 cols <- c(rev(brewer.pal(5, "BrBG")), "#AA3333")
 
+za.c <- subset(za.county, select=c(subregion, region, pop, za))
+#county$zcopy <- ifelse(county$z>3,3,county$z)
+za.county$logza <- ifelse(za.county$za==0, 0, log10(za.county$za))
+za.county$logpop <- ifelse(za.county$pop==0, 0, log10(za.county$pop))
+za.county$lufo <- ifelse(za.county$ufo2010==0, 0, log10(za.county$ufo2010))
 county <- map_data("county")
-county <- merge(county, za.c)
+county <- merge(county, za.county)
 county <- county[with(county, order(group, order)), ]
 
-#county$zcopy <- ifelse(county$z>3,3,county$z)
-za.c$linf <- ifelse(za.c$infections==0, 0, log10(za.c$infections))
-za.c$lpop <- ifelse(za.c$pop==0, 0, log10(za.c$pop))
+# 34567890123456789012345678901234567890123456789012345678901234567890
+gpop <- ggplot(county, aes(x=long, y=lat, group=group, fill=logpop))
+gpop <- gpop + geom_polygon(colour="#66AA660F", alpha=1, line=0)
+gpop <- gpop + coord_map("polyconic")
+gpop <- gpop + scale_fill_gradient2(low=colors[5], mid=colors[3], 
+                                high=colors[1], 
+                                midpoint=mean(county$logpop),
+                                        guide=F)
+gpop <- gpop + ggtitle("U.S. Population")
+gpop <- gpop + theme_plain()
+#print(gg.pop)
+ginf <- ggplot(county, aes(x=long, y=lat, group=group, fill=logza))
+ginf <- ginf + geom_polygon(colour="#66AA660F", alpha=1, line=0)
+ginf <- ginf + coord_map("polyconic")
+ginf <- ginf + scale_fill_gradient2(low=colors[5], mid=colors[3], 
+                                high=colors[1], 
+                                midpoint=mean(county$logza),
+                                        guide=F)
+ginf <- ginf + ggtitle("ZeroAccess Infections")
+ginf <- ginf + theme_plain()
+#print(gg.inf)
+grid.arrange(ginf,gpop)
 
-gg.pop <- ggplot(county, aes(x=long, y=lat, group=group, fill=lpop))
-gg.pop <- gg.pop + geom_polygon(colour="#66AA660F", alpha=1, line=0)
-gg.pop <- gg.pop + coord_map("polyconic")
-gg.pop <- gg.pop + scale_fill_gradient2(low=colors[5], mid=colors[3], 
-                                high=colors[1], 
-                                midpoint=mean(county$lpop),
+
+gg.ufo <- ggplot(county, aes(x=long, y=lat, group=group, fill=lufo))
+gg.ufo <- gg.ufo + geom_polygon(colour="#66AA660F", alpha=1, line=0)
+gg.ufo <- gg.ufo + coord_map("polyconic")
+gg.ufo <- gg.ufo + scale_fill_gradient2(low=colors[5], mid=colors[3], 
+                                        high=colors[1], 
+                                        midpoint=mean(county$lufo),
                                         guide=F)
-gg.pop <- gg.pop + ggtitle("U.S. Population")
-gg.pop <- gg.pop + theme_plain()
-print(gg.pop)
-gg.inf <- ggplot(county, aes(x=long, y=lat, group=group, fill=linf))
-gg.inf <- gg.inf + geom_polygon(colour="#66AA660F", alpha=1, line=0)
-gg.inf <- gg.inf + coord_map("polyconic")
-gg.inf <- gg.inf + scale_fill_gradient2(low=colors[5], mid=colors[3], 
-                                high=colors[1], 
-                                midpoint=mean(county$linf),
+gg.ufo <- gg.ufo + ggtitle("UFO sightings")
+gg.ufo <- gg.ufo + theme_plain()
+print(gg.ufo)
+
+base.mod <- za.county$pop/1000
+za.county$za.norm <- za.county$za/base.mod
+za.county$ufo.norm <- za.county$ufo2010/base.mod
+county <- merge(county, za.county)
+county <- county[with(county, order(group, order)), ]
+county$lza <- ifelse(county$za.norm==0, 0, log10(county$za.norm))
+
+gg.ufo <- ggplot(county, aes(x=long, y=lat, group=group, fill=lza))
+gg.ufo <- gg.ufo + geom_polygon(colour="#66AA660F", alpha=1, line=0)
+gg.ufo <- gg.ufo + coord_map("polyconic")
+gg.ufo <- gg.ufo + scale_fill_gradient2(low=colors[5], mid=colors[3], 
+                                        high=colors[1], 
+                                        midpoint=mean(county$lza),
                                         guide=F)
-gg.inf <- gg.inf + ggtitle("ZeroAccess Infections")
-gg.inf <- gg.inf + theme_plain()
-print(gg.inf)
+gg.ufo <- gg.ufo + ggtitle("ZeroAccess Infections per 1,000 people")
+gg.ufo <- gg.ufo + theme_plain()
+print(gg.ufo)
+
+
+
 library(gridExtra)
-grid.arrange(gg.inf, gg.pop)
-
+grid.arrange(gg.inf, gg.pop, gg.ufo)
 my.lm <- function(data, ...) {
   local.data <- data[sample(nrow(data), size=50), ]
   fit <- lm(data=local.data, ...)
@@ -302,6 +339,12 @@ gg <- gg + scale_y_continuous(trans=log10_trans())
 gg <- gg + scale_x_continuous(trans=log10_trans())
 print(gg)
 
+gg <- ggplot(data=za.county, aes(x=ufo.norm, y=za.norm)) + geom_point()
+gg <- gg + geom_smooth(method = "lm", se=FALSE, color="black", formula = y ~ x)
+gg <- gg + scale_y_continuous(trans=log10_trans())
+gg <- gg + scale_x_continuous(trans=log10_trans())
+print(gg)
+
 library(car)
 sqrt(vif(foo)) > 2 # problem?
 foo <- lm(za ~ pop + income + ufo2pop, data=za.county)
@@ -318,3 +361,50 @@ sum(pvals<0.05)
 
 #print(model.summary$r.squared)
 #print(model.summary$coefficients[,4])
+
+
+#make a picture for linear regression
+
+temp.za <- za.county[za.county$za<200, ]
+doo <- temp.za[sample(nrow(temp.za), 40), ]; cor(doo$za, doo$pop)
+
+ggplot(doo, aes(doo$income, doo$za)) + geom_point() + 
+geom_smooth(method = "lm", se=F, color="red", formula = y ~ x)
+
+foo <- lm(za ~ income, data=za.county)
+goo <- summary(foo)
+doo <- za.county[which(goo$residuals>-50 & goo$residuals<50), ]
+
+ggplot(doo, aes(doo$income, doo$za)) + geom_point() + 
+  geom_smooth(method = "lm", se=F, color="red")
+
+# for reproducability
+set.seed(1)
+# generate 200 random numbers around 10
+input <- rnorm(200, mean=10)
+# generate output around a mean of 2 x input
+output <- rnorm(200, mean=input*2)
+# put into data frame to plot it
+our.data <- data.frame(input, output)
+# and plot it
+gg <- ggplot(our.data, aes(input, output))
+gg <- gg + geom_point()
+gg <- gg + ggtitle("A Sample Linear Relationship")
+gg <- gg + geom_smooth(method = "lm", se=F, color="red")
+gg <- gg + theme_bw()
+print(gg)
+
+model <- lm(output ~ input, data=our.data)
+summary(model)
+
+summary(lm(za ~ ufo2010, data=za.county))
+library(car)
+sqrt(vif(foo)) > 2 # problem?
+model <- lm(za ~ pop + income + ipaddr + ufo2010, data=za.county)
+summary(lm(za ~ pop + income + ipaddr + ufo2010, data=za.county))
+
+za.county$za.by.pop <- za.county$za/za.county$pop
+za.county$ufo.by.pop <- za.county$ufo2010/za.county$pop
+summary(lm(za.by.pop ~ ufo.by.pop, data=za.county))
+
+summary(lm(za ~ pop, data=za.county))
