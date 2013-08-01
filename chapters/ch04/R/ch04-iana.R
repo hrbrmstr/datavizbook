@@ -32,7 +32,60 @@ desig <- summary(factor(av$Designation))
 desig <- desig[order(-desig)]
 desig
 
-iana.df <- data.frame(table(iana$Designation),stringsAsFactors=FALSE)
-colnames(iana.df) <- c("reg","ct")
+iana.df <- data.frame(table(iana$Designation))
+colnames(iana.df) <- c("Registry","IANA.Block.Count")
 av.reg <- iana.df[iana.df$reg %in% names(desig),]
-av.reg[with(av.reg, order(-ct)),]
+
+tmp.df = data.frame(table(factor(av$Designation)))
+colnames(tmp.df) <- c("Registry","AlienVault.IANA.Count")
+
+combined.df = merge(iana.df,tmp.df)
+combined.df[with(combined.df, order(-IANA.Block.Count)),]
+
+melted.df = melt(combined.df)
+
+library(ggplot2)
+ggplot(data=melted.df) +
+  geom_bar(aes(x=Registry, y=value, fill=variable), stat="identity") +
+  facet_wrap(~variable, scales="free_y") +
+  labs(y="Count") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+        legend.position = "none")
+
+cor.spearman = cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="spearman")
+cor.pearson = cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="pearson")
+
+cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,
+    method="spearman")
+cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,
+    method="pearson")
+cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,
+    method="kendall")
+
+
+cor.test(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,)
+cor.test(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="pearson",alternative="less")
+
+
+cor(log(combined.df$IANA.Block.Count),
+      log(combined.df$AlienVault.IANA.Count),method="spearman")
+0.9488598
+cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,
+      method="spearman")
+0.9488598
+
+
+var(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count)
+
+cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="spearman")
+cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="pearson")
+
+cov(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="spearman")
+cov(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="pearson")
+
+
+ggplot(data=combined.df) + 
+  geom_point(aes(x=IANA.Block.Count, y=AlienVault.IANA.Count))
+ggplot(data=combined.df) + 
+  geom_point(aes(x=log(IANA.Block.Count),
+                 y=log(AlienVault.IANA.Count)))
