@@ -1,3 +1,6 @@
+library(reshape)
+library(ggplot2)
+
 options(width=70)
 setwd("~/Dropbox/datavizbook/chapters")
 # retrieve IANA prefix list
@@ -44,7 +47,6 @@ combined.df[with(combined.df, order(-IANA.Block.Count)),]
 
 melted.df = melt(combined.df)
 
-library(ggplot2)
 ggplot(data=melted.df) +
   geom_bar(aes(x=Registry, y=value, fill=variable), stat="identity") +
   facet_wrap(~variable, scales="free_y") +
@@ -69,19 +71,14 @@ cor.test(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="
 
 cor(log(combined.df$IANA.Block.Count),
       log(combined.df$AlienVault.IANA.Count),method="spearman")
-0.9488598
 cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,
       method="spearman")
-0.9488598
 
-
-var(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count)
 
 cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="spearman")
-cor(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="pearson")
-
+var(log(combined.df$IANA.Block.Count),log(combined.df$AlienVault.IANA.Count))
 cov(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="spearman")
-cov(combined.df$IANA.Block.Count,combined.df$AlienVault.IANA.Count,method="pearson")
+cor.test(log(combined.df$IANA.Block.Count),log(combined.df$AlienVault.IANA.Count),method="spearman")
 
 
 ggplot(data=combined.df) + 
