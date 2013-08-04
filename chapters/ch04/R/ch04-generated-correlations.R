@@ -1,5 +1,7 @@
 #install.packages("ecodist")
+#install.packages("TeachingDemos")
 library(ecodist)
+library(TeachingDemos)
 
 set.seed(1492)
 
@@ -14,8 +16,9 @@ plot(y.none$x,y.none$y,main="No Correlation",xlab="x",ylab="y")
 plot(y.neg$x,y.neg$y,main="Negative Correlation",xlab="x",ylab="y")
 par(mfrow=c(1,1))
 
-#install.packages("TeachingDemos")
-library(TeachingDemos)
+y.meh = corgen(len=200,x,r=-0.5)
+plot(y.meh$x,y.meh$y,main="Meh: Negative Correlation",xlab="x",ylab="y")
+
 
 par(mfrow=c(3,1))
 cor.rect.plot(y.pos$x, y.pos$y, corr = FALSE,xlab="x",ylab="y")
@@ -32,6 +35,10 @@ par(mfrow=c(1,1))
 cov(y.pos$x, y.pos$y)
 cov(y.none$x, y.none$y)
 cov(y.neg$x, y.neg$y)
+
+cat(cov(y.pos$x, y.pos$y),cov(y.none$x, y.none$y),cov(y.neg$x, y.neg$y),cov(y.meh$x, y.meh$y), sep=", ")
+cat(cor(y.pos$x, y.pos$y),cor(y.none$x, y.none$y),cor(y.neg$x, y.neg$y),cor(y.meh$x, y.meh$y), sep=", ")
+
 
 require(stats)
 require(graphics)
