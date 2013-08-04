@@ -42,33 +42,33 @@ BulkOrigin <- function(ip.list,host="v4.whois.cymru.com",port=43) {
   #
   # Args:
   #   ip.list : character vector of IP addresses
-  #   host: which server to hit for lookup (defaults to Team Cymru's server)
+  #   host: which server to hit for lookup (defaults to Team Cymru)
   #   post: TCP port to use (defaults to 43)
   #
   # Returns:
   #   data frame of BGP Origin ASN lookup results
   
-  # setup query
-  cmd = "begin\nverbose\n" 
-  ips = paste(unlist(ip.list), collapse="\n")
-  cmd = sprintf("%s%s\nend\n",cmd,ips)
   
-  # setup connection and post query
-  con = socketConnection(host=host,port=port,blocking=TRUE,open="r+")  
+  # setup query
+  cmd <- "begin\nverbose\n" 
+  ips <- paste(unlist(ip.list), collapse="\n")
+  cmd <- sprintf("%s%s\nend\n",cmd,ips)
+  
+  # setup connection and post query 
+  con <- socketConnection(host=host,port=port,blocking=TRUE,open="r+")  
   cat(cmd,file=con)
-  response = readLines(con)
+  response <- readLines(con)
   close(con)
   
-  o.origin.response <<- response # make it global
-  
   # trim header, split fields and convert results
-  response = response[2:length(response)]
-  response = laply(response,.fun=function(n) {
+  response <- response[2:length(response)]
+  response <- laply(response,.fun=function(n) {
     sapply(strsplit(n,"|",fixed=TRUE),trim)
   })
-  response = adply(response,c(1))
-  response = subset(response, select = -c(X1) )
-  names(response) = c("AS","IP","BGP.Prefix","CC","Registry","Allocated","AS.Name")
+  response <- adply(response,c(1))
+  response <- subset(response, select = -c(X1) )
+  names(response) = c("AS","IP","BGP.Prefix","CC",
+                      "Registry","Allocated","AS.Name")
   
   return(response)
   
@@ -86,33 +86,33 @@ BulkPeer <- function(ip.list,host="v4-peer.whois.cymru.com",port=43) {
   #
   # Args:
   #   ip.list : character vector of IP addresses
-  #   host: which server to hit for lookup (defaults to Team Cymru's server)
+  #   host: which server to hit for lookup (defaults to Team Cymru)
   #   post: TCP port to use (defaults to 43)
   #
   # Returns:
   #   data frame of BGP Peer ASN lookup results
   
+  
   # setup query
-  cmd = "begin\nverbose\n" 
-  ips = paste(unlist(ip.list), collapse="\n")
-  cmd = sprintf("%s%s\nend\n",cmd,ips)
+  cmd <- "begin\nverbose\n" 
+  ips <- paste(unlist(ip.list), collapse="\n")
+  cmd <- sprintf("%s%s\nend\n",cmd,ips)
   
   # setup connection and post query
-  con = socketConnection(host=host,port=port,blocking=TRUE,open="r+")  
+  con <- socketConnection(host=host,port=port,blocking=TRUE,open="r+")  
   cat(cmd,file=con)
-  response = readLines(con)
+  response <- readLines(con)
   close(con)
   
-  o.peer.response <<- response # make it global
-  
   # trim header, split fields and convert results
-  response = response[2:length(response)]
-  response = laply(response,function(n) {
+  response <- response[2:length(response)]
+  response <- laply(response,function(n) {
     sapply(strsplit(n,"|",fixed=TRUE),trim)
   })  
-  response = adply(response,c(1))
-  response = subset(response, select = -c(X1) )
-  names(response) = c("Peer.AS","IP","BGP.Prefix","CC","Registry","Allocated","Peer.AS.Name")
+  response <- adply(response,c(1))
+  response <- subset(response, select = -c(X1) )
+  names(response) <- c("Peer.AS","IP","BGP.Prefix","CC",
+                       "Registry","Allocated","Peer.AS.Name")
   return(response)
   
 }
@@ -129,35 +129,34 @@ BulkOriginASN <- function(asn.list,host="v4.whois.cymru.com",port=43) {
   #
   # Args:
   #   asn.list : character vector of ASN ids
-  #   host: which server to hit for lookup (defaults to Team Cymru's server)
+  #   host: which server to hit for lookup (defaults to Team Cymru)
   #   post: TCP port to use (defaults to 43)
   #
   # Returns:
   #   data frame of BGP Origin ASN lookup results
   
+  
   # setup query
-  cmd = "begin\nverbose\n" 
-  ips = paste(unlist(asn.list), collapse="\n")
-  cmd = sprintf("%s%s\nend\n",cmd,ips)
+  cmd <- "begin\nverbose\n" 
+  ips <- paste(unlist(asn.list), collapse="\n")
+  cmd <- sprintf("%s%s\nend\n",cmd,ips)
   
   # setup connection and post query
-  con = socketConnection(host=host,port=port,blocking=TRUE,open="r+")  
+  con <- socketConnection(host=host,port=port,blocking=TRUE,open="r+")  
   cat(cmd,file=con)
-  response = readLines(con)
+  response <- readLines(con)
   close(con)
-  
-  o.origin.asn.response <<- response # make it global
   
   # trim header, split fields and convert results
   
-  response = response[2:length(response)]
-  response = laply(response,.fun=function(n) {
+  response <- response[2:length(response)]
+  response <- laply(response,.fun=function(n) {
     sapply(strsplit(n,"|",fixed=TRUE),trim)
   })
   
-  response = adply(response,c(1))
-  response = subset(response, select = -c(X1) )
-  names(response) = c("AS","CC","Registry","Allocated","AS.Name")
+  response <- adply(response,c(1))
+  response <- subset(response, select = -c(X1) )
+  names(response) <- c("AS","CC","Registry","Allocated","AS.Name")
   
   return(response)
   
@@ -167,68 +166,68 @@ graph.cc <- function(ips,alien.vault.df,show.plot=TRUE) {
   
   # Lookup ASN info for the incoming IP list which will
   # have country of origin info that's fairly accurate
-  origin = BulkOrigin(ips)
+  origin <- BulkOrigin(ips)
   
   # filter out IP and Type from the alienvault DB only for our ip list
-  ips.types = alien.vault.df[alien.vault.df$IP %in% ips,c(1,2,4)]
+  ips.types <- alien.vault.df[alien.vault.df$IP %in% ips,c(1,2,4)]
   
   # get a tabular summary of the types and counts
-  ftab = table(factor(ips.types[ips.types$IP %in% ips,]$Type))
+  ftab <- table(factor(ips.types[ips.types$IP %in% ips,]$Type))
   
   # build a color table from the tabular summary
-  myColors = rainbow_hcl(length(names(ftab)),c=60,l=70,start=20)
-  col.df = data.frame(Type=names(ftab),Color=myColors)
+  myColors <- rainbow_hcl(length(names(ftab)),c=60,l=70,start=20)
+  col.df <- data.frame(Type=names(ftab),Color=myColors)
   
   # begin graph creation
-  g = graph.empty()
+  g <- graph.empty()
   
   # add our ip list as the starting vertices
-  g = g + vertices(ips,size=3,group=1)
+  g <- g + vertices(ips,size=3,group=1)
   
   # i don't the df is necessary anymore...will test later
-  ips.df = data.frame(ips)
-  colnames(ips.df) = c("IP")
+  ips.df <- data.frame(ips)
+  colnames(ips.df) <- c("IP")
   
   # get the current list of vertex names...i think i can remove this too
-  v.names = V(g)$name
+  v.names <- V(g)$name
   
   # assign colors to the vertices based on the type
-  V(g)$color = as.character(col.df[col.df$Type %in% ips.types[ips.types$IP %in% v.names,]$Type,]$Color)
+  V(g)$color <- as.character(col.df[col.df$Type %in% ips.types[ips.types$IP %in% v.names,]$Type,]$Color)
   
   # add country vertices
-  g = g + vertices(
+  g <- g + vertices(
     grep("NA",unique(origin$CC),value=TRUE,invert=TRUE),
     size=2,color="orange",group=2)
 
   # build country->ip edges
-  ip.cc.edges = lapply(ips,function(x) {
-    iCC = origin[origin$IP==x,]$CC
+  ip.cc.edges <- lapply(ips,function(x) {
+    iCC <- origin[origin$IP==x,]$CC
     lapply(iCC,function(y){
       c(x,y)
     })
   })
 
   # add edges
-  g = g + edges(unlist(ip.cc.edges))
+  g <- g + edges(unlist(ip.cc.edges))
 
   # simplify (though it's almost not necessary given the low
   # complexity of the graph)
-  g = simplify(g, edge.attr.comb=list(weight="sum"))
+  g <- simplify(g, edge.attr.comb=list(weight="sum"))
 
   # remove lone wolf vertices
   g <- delete.vertices(g, which(degree(g) < 1))
 
   # arrows: ugh
-  E(g)$arrow.size = 0
+  E(g)$arrow.size <- 0
 
   # we only want to see country labels, not IPs
-  V(g)[grep("[0-9]",V(g)$name)]$name = ""
+  V(g)[grep("[0-9]",V(g)$name)]$name <- ""
 
   # 10000 makes pretty graphs and takes a pretty long time
   L <- layout.fruchterman.reingold(g, niter=10000, area=30*vcount(g)^2)
 
   # for when I add community options
-  c = walktrap.community(g, steps=10)
+  c <- walktrap.community(g, steps=10)
   v <- evcent(g)$vector
   
   if (show.plot) {
@@ -251,64 +250,64 @@ graph.cc <- function(ips,alien.vault.df,show.plot=TRUE) {
 graph.asn <- function(ips,alien.vault.df,add.peers=FALSE,show.plot=TRUE,show.labels=FALSE) {
   
   # Lookup ASN info for the incoming IP list
-  origin = BulkOrigin(ips)
+  origin <- BulkOrigin(ips)
 
   if (add.peers) { # and peers if specified
-    peers = BulkPeer(ips)
+    peers <- BulkPeer(ips)
   }
   
   # filter out IP and Type from the alienvault DB only for our ip list
-  ips.types = alien.vault.df[alien.vault.df$IP %in% ips,c(1,2,4)]
+  ips.types <- alien.vault.df[alien.vault.df$IP %in% ips,c(1,2,4)]
   
   # get a tabular summary of the types and counts
-  ftab = table(factor(ips.types[ips.types$IP %in% ips,]$Type))
+  ftab <- table(factor(ips.types[ips.types$IP %in% ips,]$Type))
 
   # build a color table from the tabular summary
-  myColors = rainbow_hcl(length(names(ftab)),c=60,l=70,start=20)
-  col.df = data.frame(Type=names(ftab),Color=myColors)
+  myColors <- rainbow_hcl(length(names(ftab)),c=60,l=70,start=20)
+  col.df <- data.frame(Type=names(ftab),Color=myColors)
   
   # begin graph creation
-  g = graph.empty()
+  g <- graph.empty()
 
   # add our ip list as the starting vertices
-  g = g + vertices(ips,size=3,group=1)
+  g <- g + vertices(ips,size=3,group=1)
   
-  # i don't the df is necessary anymore...will test later
-  ips.df = data.frame(ips)
-  colnames(ips.df) = c("IP")
+  # i don't think the df is necessary anymore...will test later
+  ips.df <- data.frame(ips)
+  colnames(ips.df) <- c("IP")
   
   # get the current list of vertex names...i think i can remove this too
-  v.names = V(g)$name
+  v.names <- V(g)$name
 
   # assign colors to the vertices based on the type
-  V(g)$color = as.character(col.df[col.df$Type %in% ips.types[ips.types$IP %in% v.names,]$Type,]$Color)
+  V(g)$color <- as.character(col.df[col.df$Type %in% ips.types[ips.types$IP %in% v.names,]$Type,]$Color)
   
   # now make primary BGP/ASN vertices
-  g = g + vertices(
+  g <- g + vertices(
     grep("NA",unique(origin$AS),value=TRUE,invert=TRUE),
     size=2,color="orange", group=2)
 
   if (add.peers) { # same for peers if specified
-    g = g + vertices(
+    g <- g + vertices(
       unique(c(peers$Peer.AS, origin$AS)),
       size=2,color="orange",group=2)
   }
   
   # Make IP/BGP edges
-  ip.edges = lapply(ips,function(x) {
-    iAS = origin[origin$IP==x,]$AS
+  ip.edges <- lapply(ips,function(x) {
+    iAS <- origin[origin$IP==x,]$AS
     lapply(iAS,function(y){
       c(x,y)
     })
   })
   
   if (add.peers) { # same for peers if specified
-    bgp.edges = lapply(
+    bgp.edges <- lapply(
       grep("NA",unique(origin$BGP.Prefix),value=TRUE,invert=TRUE),
       function(x) {
-        startAS = unique(origin[origin$BGP.Prefix==x,]$AS)
+        startAS <- unique(origin[origin$BGP.Prefix==x,]$AS)
         lapply(startAS,function(z) {
-          pAS = peers[peers$BGP.Prefix==x,]$Peer.AS
+          pAS <- peers[peers$BGP.Prefix==x,]$Peer.AS
           lapply(pAS,function(y) {
             c(z,y)
           })
@@ -317,30 +316,30 @@ graph.asn <- function(ips,alien.vault.df,add.peers=FALSE,show.plot=TRUE,show.lab
   }
   
   # build ASN->IP edges
-  g = g + edges(unlist(ip.edges))
+  g <- g + edges(unlist(ip.edges))
   
   if (add.peers) { # same for peers if specified
-    g = g + edges(unlist(bgp.edges))
+    g <- g + edges(unlist(bgp.edges))
   }
   
   # simplify the structure (prbly needed since it's already
   # well organized w/o dupes
-  g = simplify(g, edge.attr.comb=list(weight="sum"))
+  g <- simplify(g, edge.attr.comb=list(weight="sum"))
   
   # delete any standalone vertices (lone wolf ASNs)
   g <- delete.vertices(g, which(degree(g) < 1))
   
   # arrows: ugh
-  E(g)$arrow.size = 0
+  E(g)$arrow.size <- 0
   
   # if we do show labels, we only want to see the ASNs
-  V(g)[grep("\\.",V(g)$name)]$name = ""
+  V(g)[grep("\\.",V(g)$name)]$name <- ""
 
   # 10000 makes it pretty...and pretty slow
   L <- layout.fruchterman.reingold(g, niter=10000, area=30*vcount(g)^2)
   
   # shld make an options parameter and if-block this
-  c = walktrap.community(g, steps=10)
+  c <- walktrap.community(g, steps=10)
   v <- evcent(g)$vector
 
   if (show.plot) {
@@ -379,20 +378,20 @@ colnames(av.df) <- c("IP","Reliability","Risk","Type",
 
 
 # load 1 day's worth of 1 firewall's recorded destination IP addresses
-dest.ips = read.csv("~/Desktop/dest.ips")
-colnames(dest.ips) = c("IP")
+dest.ips <- read.csv("~/Desktop/dest.ips")
+colnames(dest.ips) <- c("IP")
 
 # from all our IP destinations, just extract the possible malicious ones
-ips.types = av.df[av.df$IP %in% dest.ips$IP,c(1,2,4)]
+ips.types <- av.df[av.df$IP %in% dest.ips$IP,c(1,2,4)]
 
 # filter out only the ones with a really bad reputation
-#ips = as.character(ips.types[ips.types$Reliability > 6,]$IP)
-ips = as.character(ips.types[ips.types$Reliability > 5,]$IP)
+#ips <- as.character(ips.types[ips.types$Reliability > 6,]$IP)
+ips <- as.character(ips.types[ips.types$Reliability > 5,]$IP)
 
-cc.g = graph.cc(ips,av.df)
-asn.g = graph.asn(ips,av.df)
-asn.g = graph.asn(ips,av.df,add.peers=TRUE,show.labels=FALSE)
-asn.g = graph.asn(ips,av.df,add.peers=FALSE,show.labels=FALSE)
+cc.g <- graph.cc(ips,av.df)
+asn.g <- graph.asn(ips,av.df)
+asn.g <- graph.asn(ips,av.df,add.peers=TRUE,show.labels=FALSE)
+asn.g <- graph.asn(ips,av.df,add.peers=FALSE,show.labels=FALSE)
 plot(asn.g,vertex.label=NA,mark.groups=TRUE)
 
 plot(walktrap.community(asn.g),asn.g,vertex.label=NA)
@@ -400,5 +399,5 @@ plot(walktrap.community(asn.g),asn.g,vertex.label=NA)
 plot(cc.g,mark.groups=membership(walktrap.community(cc.g)))
 plot(cc.g)
 
-c = walktrap.community(cc.g, steps=10)
+c <- walktrap.community(cc.g, steps=10)
 v <- evcent(g)$vector
