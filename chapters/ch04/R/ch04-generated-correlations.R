@@ -2,46 +2,53 @@
 #install.packages("TeachingDemos")
 library(ecodist)
 library(TeachingDemos)
+library(stats)
+library(graphics)
 
 set.seed(1492)
 
+# generate some random numbers
 x = seq.int(1:200)
+# build gamed correlations for them
 y.pos = corgen(len=200,x,r=0.85)
 y.none = corgen(len=200,x,r=0.0)
 y.neg = corgen(len=200,x,r=-0.85)
 
+# scatterplot them
 par(mfrow=c(3,1))
 plot(y.pos$x,y.pos$y,main="Positive Correlation",xlab="x",ylab="y")
 plot(y.none$x,y.none$y,main="No Correlation",xlab="x",ylab="y")
 plot(y.neg$x,y.neg$y,main="Negative Correlation",xlab="x",ylab="y")
 par(mfrow=c(1,1))
 
+# build a hard-to-tell correlation and plot it
 y.meh = corgen(len=200,x,r=-0.5)
 plot(y.meh$x,y.meh$y,main="Meh: Negative Correlation",xlab="x",ylab="y")
 
-
+# plot the covariance rectangles
 par(mfrow=c(3,1))
 cor.rect.plot(y.pos$x, y.pos$y, corr = FALSE,xlab="x",ylab="y")
 cor.rect.plot(y.none$x, y.none$y, corr = FALSE,xlab="x",ylab="y")
 cor.rect.plot(y.neg$x, y.neg$y, corr = FALSE,xlab="x",ylab="y")
 par(mfrow=c(1,1))
 
+# plot the correlation rectangles
 par(mfrow=c(3,1))
 cor.rect.plot(y.pos$x, y.pos$y, corr = TRUE,xlab="x",ylab="y")
 cor.rect.plot(y.none$x, y.none$y, corr = TRUE,xlab="x",ylab="y")
 cor.rect.plot(y.neg$x, y.neg$y, corr = TRUE,xlab="x",ylab="y")
 par(mfrow=c(1,1))
 
-cov(y.pos$x, y.pos$y)
-cov(y.none$x, y.none$y)
-cov(y.neg$x, y.neg$y)
+# I guess we can also look at the actual values :-)
+cat(cov(y.pos$x, y.pos$y),cov(y.none$x, y.none$y),
+    cov(y.neg$x, y.neg$y),cov(y.meh$x, y.meh$y), sep=", ")
+cat(cor(y.pos$x, y.pos$y),cor(y.none$x, y.none$y),
+    cor(y.neg$x, y.neg$y),cor(y.meh$x, y.meh$y), sep=", ")
 
-cat(cov(y.pos$x, y.pos$y),cov(y.none$x, y.none$y),cov(y.neg$x, y.neg$y),cov(y.meh$x, y.meh$y), sep=", ")
-cat(cor(y.pos$x, y.pos$y),cor(y.none$x, y.none$y),cor(y.neg$x, y.neg$y),cor(y.meh$x, y.meh$y), sep=", ")
+# now build the anscombe visualizatons
+# this comes straight from R...just to a ?anscombe at an
+# R console to see!
 
-
-require(stats)
-require(graphics)
 summary(anscombe)
 
 ##-- now some "magic" to do the 4 regressions in a loop:
@@ -69,6 +76,3 @@ for(i in 1:4) {
 }
 mtext("Anscombe's 4 Regression data sets", outer = TRUE, cex = 1.5)
 par(op)
-
-
-

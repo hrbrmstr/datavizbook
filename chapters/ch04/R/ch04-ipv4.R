@@ -45,17 +45,24 @@ ip.is.in.cidr <- function(ip,cidr) {
   return(bitAnd(long.ip,cidr.mask) == bitAnd(cidr.range,cidr.mask))
 }
 
-long2ip(ip2long("192.168.0.0"))
-long2ip(ip2long("192.168.0.2"))
-long2ip(ip2long("192.168.0.4"))
-long2ip(ip2long("192.168.100.6"))
-long2ip(ip2long("192.168.33.64"))
-long2ip(ip2long("192.168.33.68"))
-long2ip(ip2long("10.0.1.99"))
-long2ip(ip2long("24.62.253.107"))
 
-ip.is.in.cidr("10.0.1.15","192.0.1.0/24")
-ip.is.in.cidr("10.0.1.15","10.0.1.255/24")
-ip.is.in.cidr("192.168.33.72","192.168.33.64/26")
-ip.is.in.cidr("192.168.33.127","192.168.33.64/26")
-ip.is.in.cidr("192.168.33.128","192.168.33.64/26")
+is.ip <- function(ip) {
+  return(grepl("^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$",ip))
+}
+
+ip.test <- function() {
+  long2ip(ip2long("192.168.0.0"))
+  long2ip(ip2long("192.168.0.2"))
+  long2ip(ip2long("192.168.0.4"))
+  long2ip(ip2long("192.168.100.6"))
+  long2ip(ip2long("192.168.33.64"))
+  long2ip(ip2long("192.168.33.68"))
+  long2ip(ip2long("10.0.1.99"))
+  long2ip(ip2long("24.62.253.107"))
+  
+  ip.is.in.cidr("10.0.1.15","192.0.1.0/24")
+  ip.is.in.cidr("10.0.1.15","10.0.1.255/24")
+  ip.is.in.cidr("192.168.33.72","192.168.33.64/26")
+  ip.is.in.cidr("192.168.33.127","192.168.33.64/26")
+  ip.is.in.cidr("192.168.33.128","192.168.33.64/26")
+}

@@ -196,7 +196,7 @@ graph.cc <- function(ips,alien.vault.df,show.plot=TRUE) {
   
   # add country vertices
   g <- g + vertices(
-    grep("NA",unique(origin$CC),value=TRUE,invert=TRUE),
+    unique(origin$CC),
     size=2,color="orange",group=2)
 
   # build country->ip edges
@@ -282,15 +282,15 @@ graph.asn <- function(ips,alien.vault.df,add.peers=FALSE,show.plot=TRUE,show.lab
   # assign colors to the vertices based on the type
   V(g)$color <- as.character(col.df[col.df$Type %in% ips.types[ips.types$IP %in% v.names,]$Type,]$Color)
   
-  # now make primary BGP/ASN vertices
-  g <- g + vertices(
-    grep("NA",unique(origin$AS),value=TRUE,invert=TRUE),
-    size=2,color="orange", group=2)
-
-  if (add.peers) { # same for peers if specified
+  # add BGP->IP vertices and - if requested - add peer ASN vertices
+  if (add.peers) { 
     g <- g + vertices(
       unique(c(peers$Peer.AS, origin$AS)),
       size=2,color="orange",group=2)
+  } else {
+    g <- g + vertices(
+      unique(origin$AS),
+      size=2,color="orange", group=2)
   }
   
   # Make IP/BGP edges
@@ -336,7 +336,8 @@ graph.asn <- function(ips,alien.vault.df,add.peers=FALSE,show.plot=TRUE,show.lab
   V(g)[grep("\\.",V(g)$name)]$name <- ""
 
   # 10000 makes it pretty...and pretty slow
-  L <- layout.fruchterman.reingold(g, niter=10000, area=30*vcount(g)^2)
+  L <- layout.fruchterman.reingold(g, niter=10000, 
+                                   area=30*vcount(g)^2)
   
   # shld make an options parameter and if-block this
   c <- walktrap.community(g, steps=10)
