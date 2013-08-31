@@ -1,3 +1,10 @@
+library(ggplot2)
+library(scales)
+library(grid)
+library(gridExtra)
+library(gdata)
+library(RColorBrewer)
+
 runall <- FALSE
 figure <- 7  # start at figure number...
 
@@ -10,7 +17,7 @@ scale.filter.nb <- function(x) {
   sub("B", "", humanReadable(x))
 }
 getfile <- function(x) {
-  paste("figures/793725c06f", sprintf("%03d", x), ".pdf", sep="")
+  paste("figures/test-793725c06f", sprintf("%03d", x), ".pdf", sep="")
 }
 theme_sample <- function() {
   theme_bw() + theme(legend.title=element_blank(),
@@ -31,6 +38,26 @@ if (runall) {
   fullfw <- fullfw[order(fullfw$hour), ] # want to be sure we're still sorted
   fullfw$iter <- seq_along(fullfw$hour)
   
+  # Not a rolling average
+  gcolor=rep("gray97", nrow(fullfw))
+  gcolor[seq(1,nrow(fullfw), by=12)] <- "gray80"
+  pcolor=rep("gray60", nrow(fullfw))
+  pcolor[seq(1,nrow(fullfw), by=6)] <- "#CC0000"
+
+  mylabel <- c("8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm")
+  
+  gg <- ggplot(fullfw, aes(iter, sessions))
+  gg <- gg + geom_bar(stat="identity", width=0.1, color=gcolor)
+  gg <- gg + geom_point(size=2, color=pcolor)
+  gg <- gg + ylab("Sessions") + xlab("Time")
+  gg <- gg + scale_x_continuous(labels=mylabel, 
+                                breaks=seq(1,nrow(fullfw), by=12))
+  gg <- gg + scale_y_continuous(labels=scale.filter.nb)
+  gg <- gg + theme_bw() + theme_sample()
+  print(gg)
+
+  ggsave(getfile(10), gg, width=8, height=2.5)
+  
   # rolling average (2)
   x <- seq(2, nrow(fullfw))
   y <- sapply(x, function(z) sum(fullfw$sessions[(z-1):z])/2)
@@ -39,27 +66,16 @@ if (runall) {
   gcolor[seq(1,nrow(dfi), by=12)] <- "gray80"
   pcolor=rep("gray60", nrow(dfi))
   pcolor[seq(1,nrow(dfi), by=6)] <- "#CC0000"
-  mylabel <- c("8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm")
   
-  gg <- ggplot(dfi, aes(x, y))
-  gg <- gg + geom_bar(stat="identity", width=0.1, color=gcolor)
-  gg <- gg + geom_point(size=2, color=pcolor)
-  gg <- gg + ylab("Sessions") + xlab("Time")
-  gg <- gg + scale_x_continuous(labels=mylabel, breaks=seq(2,nrow(dfi), by=12))
-  gg <- gg + scale_y_continuous(labels=scale.filter.nb)
-  gg <- gg + theme_sample()
-  print(gg)
+#   gg <- ggplot(dfi, aes(x, y))
+#   gg <- gg + geom_bar(stat="identity", width=0.1, color=gcolor)
+#   gg <- gg + geom_point(size=2, color=pcolor)
+#   gg <- gg + ylab("Sessions") + xlab("Time")
+#   gg <- gg + scale_x_continuous(labels=mylabel, breaks=seq(2,nrow(dfi), by=12))
+#   gg <- gg + scale_y_continuous(labels=scale.filter.nb)
+#   gg <- gg + theme_sample()
+#   print(gg)
   ggsave(getfile(figure), gg, width=8, height=3)
-  # Not a rolling average
-  #   gcolor=rep("gray97", nrow(fullfw))
-  #   gcolor[seq(1,nrow(bob), by=12)] <- "gray80"
-  #   pcolor=rep("gray60", nrow(fullfw))
-  #   pcolor[seq(1,nrow(bob), by=6)] <- "#CC0000"
-  #   
-  #   ggplot(fullfw, aes(iter, sessions)) + geom_bar(stat="identity", width=0.1, color=gcolor) + 
-  #     geom_point(size=3, color=pcolor) + theme_bw() + ylab("Sessions") + xlab("") +
-  #     scale_x_continuous(labels=mylabel, breaks=seq(1,nrow(dfi), by=12)) +
-  #     scale_y_continuous(labels=c("0", "100k", "200k", "300k", "400k"))
 }
 figure <- figure + 1
 
@@ -81,23 +97,81 @@ figure <- figure + 1
 
 if (runall) {
   ## line
-  gcolor[seq(1,nrow(bob), by=12)] <- "gray60"
-  pcolor=rep("gray60", nrow(bob))
-  pcolor[seq(1,nrow(bob), by=6)] <- "#CC0000"
+  # myfw <- cbind(fw, realx=seq_along(fw$hour))
+  better <- data.frame(hour=unique(fw$hour), realx=seq_along(unique(fw$hour)))
+  allfw <- merge(fw, better, allx=T)
+
+  #gcolor[seq(1,nrow(fw), by=12)] <- "gray60"
+  #pcolor=rep("gray60", nrow(fw))
+  #pcolor[seq(1,nrow(fw), by=6)] <- "#CC0000"
   mylabel <- c("8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm")
   myb <- seq(1, length(unique(allfw$realx)), by=12)
-  better <- data.frame(hour=unique(fw$hour), realx=seq_along(unique(fw$hour)))
-  allfw <- merge(fw, better)
   
-  gg <- ggplot(fwspec, aes(realx, bytes, group=type, color=type))
-  gg <- gg + geom_smooth(stat="identity", fill="white") + theme_bw() + scale_y_log10(labels=scale.filter)
+  gg <- ggplot(allfw, aes(realx, bytes, group=type, color=type))
+  gg <- gg + geom_smooth(stat="identity", fill="white")
+  gg <- gg + theme_bw() + scale_y_log10(labels=scale.filter)
   gg <- gg + scale_x_continuous(breaks=myb, label=mylabel)
   gg <- gg + xlab("Time") + ylab("Bytes")
-  gg <- gg + theme_sample()
+  gg <- gg + theme_sample() + theme(legend.position = "bottom")
   print(gg)
-  ggsave(getfile(figure), gg, width=8, height=5)
+  # ggsave(getfile(11), gg, width=8, height=5)
+  aa <- gg
+  
+  gg <- ggplot(allfw, aes(realx, bytes, group=type, color=type))
+  gg <- gg + geom_point(size=1.5) #(stat="identity", fill="white")
+  gg <- gg + theme_bw() + scale_y_log10(labels=scale.filter)
+  gg <- gg + scale_x_continuous(breaks=myb, label=mylabel)
+  gg <- gg + xlab("Time") + ylab("Bytes")
+  gg <- gg + theme_sample() + theme(legend.position = "bottom")
+  print(gg)
+  pdf(getfile(11), width=11, height=5)
+  grid.arrange(gg, aa, ncol=2, clip=T)
+  dev.off()
+  
 }
 figure <- figure + 1
+# tring other bar chart
+foo <- read.csv("~/Documents/book/bobfw/ipmap2.csv", header=T)
+# vulns per device
+set.seed(1492)
+wk <- round(c(rnorm(12, mean=rep(c(60, 40, 2, 2), each=3), sd=rep(c(10, 10, 0.5, 0.5), each=3))), 0)
+wk <- c(56, 61, 44, 50, 37, 48,  2,  2,  1,  2,  2,  1)
+dev <- c("Workstation", "Server", "Network", "Printer")
+sev <- c("High", "Med", "Low")
+dfi <- data.frame(x=rep(dev, each=3), y=wk, sev=rep(rev(sev), 4))
+dfi$x <- factor(dfi$x, levels=dev, ordered=T)
+dfi$sev <- factor(dfi$sev, levels=sev, ordered=T)
+
+color.pal <- brewer.pal(3, "Reds")
+
+gg <- ggplot(dfi, aes(x, y))
+gg <- gg + geom_bar(stat="identity", fill=color.pal[2], show_guide=F)
+gg <- gg + xlab("Device Type") + ylab("Vulnerabilities")
+gg <- gg + theme_sample() + theme(plot.margin = unit(c(0.5,0.4,2,0), "cm"))
+gg <- gg + ggtitle("Vertical Bar Chart")
+# print(gg)
+aa <- gg
+gg <- ggplot(dfi, aes(x, y, fill=sev))
+gg <- gg + geom_bar(stat="identity") #  show_guide=F)
+gg <- gg + xlab("Device Type") + ylab("Vulnerabilities")
+gg <- gg + scale_fill_manual(values=rev(color.pal))
+gg <- gg + theme_sample() + theme(legend.position = "bottom")
+gg <- gg + ggtitle("Stacked Bar Chart")
+#print(gg)
+bb <- gg
+gg <- ggplot(dfi, aes(x, y, fill=sev))
+gg <- gg + geom_bar(stat="identity", position=position_dodge()) #  show_guide=F)
+gg <- gg + xlab("Device Type") + ylab("Vulnerabilities")
+gg <- gg + scale_fill_manual(values=rev(color.pal))
+gg <- gg + theme_sample() + theme(legend.position = "bottom")
+gg <- gg + ggtitle("Grouped Bar Chart")
+#print(gg)
+cc <- gg
+
+pdf(getfile(12), width=12, height=4)
+# making this bigger, when smaller the font overlaps
+grid.arrange(aa, bb ,cc, ncol=3, clip=T)
+dev.off()
 
 # bar chart
 if (runall) {
@@ -379,4 +453,66 @@ if (runall) {
   gg <- gg + scale_y_continuous(labels=scale.filter, limits=c(0,max(allone$bytes)))
   gg <- gg + theme_sample() + theme(legend.position="none")
   print(gg)
+}
+
+if (runall) {
+  pdf(getfile(18), width=8, height=2)
+  par(mar=c(0,0,0,0))
+  plot(NULL, xlim=c(0,120), ylim=c(50,100), yaxt="n", ann=FALSE, xaxt="n", bty="n")
+  text(17.5,89, "Sequantial", pos=3)
+  blue <- brewer.pal(5, "Blues")
+  rdpu <- brewer.pal(5, "RdPu")
+  ygb <- brewer.pal(5, "YlGnBu")
+  text(30,83, "Blues", pos=4)
+  text(30,73, "RdPu", pos=4)
+  text(30,63, "YlGnBu", pos=4)
+  for (i in seq(5)) {
+    rect(i*5, 80, (i*5)+5, 86, col=blue[i], border=NA)
+    rect(i*5, 70, (i*5)+5, 76, col=rdpu[i], border=NA)
+    rect(i*5, 60, (i*5)+5, 66, col=ygb[i], border=NA)
+  }
+  text(57.5,89, "Diverging", pos=3)
+  blue <- brewer.pal(5, "RdBu")
+  rdpu <- brewer.pal(5, "PiYG")
+  ygb <- brewer.pal(5, "BrBG")
+  text(70,83, "RdBu", pos=4)
+  text(70,73, "PiYG", pos=4)
+  text(70,63, "BrBG", pos=4)
+  for (i in seq(5)) {
+    rect(40+(i*5), 80, (i*5)+45, 86, col=blue[i], border=NA)
+    rect(40+(i*5), 70, (i*5)+45, 76, col=rdpu[i], border=NA)
+    rect(40+(i*5), 60, (i*5)+45, 66, col=ygb[i], border=NA)
+  }
+  text(97.5,89, "Qualitative", pos=3)
+  blue <- brewer.pal(5, "Set1")
+  rdpu <- brewer.pal(5, "Set2")
+  ygb <- brewer.pal(5, "Accent")
+  text(110,83, "Set1", pos=4)
+  text(110,73, "Set2", pos=4)
+  text(110,63, "Accent", pos=4)
+  for (i in seq(5)) {
+    rect(80+(i*5), 80, (i*5)+85, 86, col=blue[i], border=NA)
+    rect(80+(i*5), 70, (i*5)+85, 76, col=rdpu[i], border=NA)
+    rect(80+(i*5), 60, (i*5)+85, 66, col=ygb[i], border=NA)
+  }
+  par(mar=c(5.1,4.1,4.1,2.1))
+  dev.off()
+}
+
+##
+## Color Wheel
+##
+if (runall) {
+  my.shift <- function(x, y) {
+    x[c(seq(y+1, length(x)), seq(1, y))]
+  }
+  my.num <- 120
+  r.col <- sin(seq(0,pi, length.out=my.num))
+  my.cols <- rgb(r.col, my.shift(r.col, my.num/3), my.shift(r.col, 2*(my.num/3)))
+  pdf(getfile(19), width=4, height=4)
+  par(mar=c(0,0,0,0))
+  pie(rep(1, length(my.cols)), col = my.cols, border=NA, labels="", radius=1)
+  par(mar=c(5.1,4.1,4.1,2.1))
+  dev.off()
   
+}
