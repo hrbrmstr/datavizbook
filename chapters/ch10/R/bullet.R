@@ -27,9 +27,9 @@ bullet.graph <- function(bg.data){
   mid.bg <- max.bg / 2
 
   gg <- ggplot(bg.data) 
-  gg <- gg + geom_bar(aes(measure, high),  fill="grey40", stat="identity", width=0.5) 
-  gg <- gg + geom_bar(aes(measure, mean),  fill="grey70", stat="identity", width=0.5) 
-  gg <- gg + geom_bar(aes(measure, low),   fill="grey90", stat="identity", width=0.5) 
+  gg <- gg + geom_bar(aes(measure, high),  fill="goldenrod2", stat="identity", width=0.5, alpha=0.2) 
+  gg <- gg + geom_bar(aes(measure, mean),  fill="goldenrod3", stat="identity", width=0.5, alpha=0.2) 
+  gg <- gg + geom_bar(aes(measure, low),   fill="goldenrod4", stat="identity", width=0.5, alpha=0.2) 
   gg <- gg + geom_bar(aes(measure, value), fill="black",  stat="identity", width=0.2) 
   gg <- gg + geom_errorbar(aes(y=target, x=measure, ymin=target, ymax=target), color="red", width=0.45) 
   gg <- gg + geom_point(aes(measure, target), colour="red", size=2.5) 
