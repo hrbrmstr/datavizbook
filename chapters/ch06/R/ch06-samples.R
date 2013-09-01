@@ -266,20 +266,20 @@ if (runall) {
   fullfw <- aggregate(cbind(packets, bytes, sessions) ~ hour, data=fw, FUN=sum)
   aa <- ggplot(fullfw, aes(x=sessions))
   #aa <- aa + geom_density() + theme_sample()
-  aa <- aa + geom_histogram(binwidth=10000, colour="black", fill="#8DA0CB") 
+  aa <- aa + geom_histogram(binwidth=12000, colour="black", fill="#8DA0CB") 
   aa <- aa + scale_x_continuous(labels=scale.filter.nb)
-  aa <- aa + xlab("Number of Sessions in 5 minutes\n(binwidth=10k)") + ylab("Count") + theme_sample()
+  aa <- aa + xlab("Number of Sessions") + ylab("Count") + theme_sample()
   #print(aa)
   
   gg <- ggplot(fullfw, aes(x=sessions))
-  gg <- gg + geom_histogram(aes(y=..density..), binwidth=12000, colour="gray50", fill="#8DA0CB66")
-  gg <- gg + geom_density(alpha=1/10, fill="#FF6666")  # Overlay with transparent density plot
-  gg <- gg + xlab("Number of Sessions in 5 minutes\n(binwidth=12k)") + ylab("Density")
+  gg <- gg + geom_histogram(aes(y=..density..), binwidth=12000, colour="#80808080", fill="#8DA0CB66", alpha=1/3)
+  gg <- gg + geom_density(alpha=1/2, fill="#8DA0CB")  # Overlay with transparent density plot
+  gg <- gg + xlab("Number of Sessions") + ylab("Density")
   gg <- gg + scale_x_continuous(labels=scale.filter.nb)
   gg <- gg + theme_sample()
   #print(gg)
   
-  pdf(getfile(figure), width=8, height=4)
+  pdf(getfile(15), width=8, height=4)
   grid.arrange(aa, gg, ncol=2, clip=T)
   dev.off()
 }
@@ -516,3 +516,198 @@ if (runall) {
   dev.off()
   
 }
+
+## 
+## My Time Series mess
+##
+if (runall) {
+  my.fw <- read.csv("data/3weeks.csv", header=T)
+  
+  my.fw2 <- aggregate(bytes ~ dh.seq, data=my.fw, FUN=mean)
+#  my.fw2$seq <- seq_along(my.fw2$dh.seq)
+  aa.breaks <- 144+seq(1,nrow(my.fw), by=nrow(my.fw)/21)
+  aa.lab <- rep(c("S", "M", "T", "W", "T", "F", "S"), 3)
+  bb.breaks <- nrow(my.fw2)/42 + seq(1, nrow(my.fw2), by=nrow(my.fw2)/21)
+
+
+  aa <- ggplot(my.fw, aes(x=seq, y=bytes)) + geom_line(color="steelblue") + theme_bw() + 
+    scale_y_continuous(labels=scale.filter, limits=c(0, max(my.fw$bytes))) + ggtitle("Basic Line Plot") +
+    scale_x_continuous(labels=aa.lab, breaks=aa.breaks) + xlab("Day") + ylab("Bytes")
+  print(aa)
+  
+  bb <- ggplot(my.fw2, aes(x=dh.seq, y=bytes)) + geom_line(color="steelblue") + theme_bw() + 
+    scale_y_continuous(labels=scale.filter, limits=c(0, max(my.fw$bytes))) + ggtitle("One hour averages") +
+    scale_x_continuous(labels=aa.lab, breaks=bb.breaks) + xlab("Day") + ylab("Bytes")
+  
+  
+  cc <- ggplot(outfw, aes(x=seq, y=bytes)) + geom_point(alpha=2/3, size=1, color="steelblue") + 
+    theme_bw() + ggtitle("Using Points") + 
+    scale_y_continuous(labels=scale.filter, limits=c(0, max(my.fw$bytes))) +
+    scale_x_continuous(labels=aa.lab, breaks=aa.breaks) + xlab("Day") + ylab("Bytes")
+  
+
+  pdf(getfile(20), width=9, height=7)
+  grid.arrange(aa, bb, cc, ncol=1, clip=T)
+  dev.off()
+  
+  #     geom_point(size=0.5, alpha=1/4, color="blue") + theme_bw() + 
+  
+  cc <- ggplot(outfw, aes(x=day, y=bytes)) + geom_jitter(alpha=1/2, size=1, color="steelblue", position = position_jitter(width = .3)) + 
+    geom_boxplot(outlier.shape=NA, colour="gray40", fill="steelblue", alpha=1/5) + theme_bw() + scale_y_continuous(labels=scale.filter)
+  scale_x_discrete() + geom_boxplot() + theme_bw() + scale_y_continuous(labels=scale.filter)
+  
+  ggplot(outfw, aes(x=day, y=bytes)) + geom_boxplot(outlier.shape = NA, alpha=0.5) + theme_bw()
+  
+  print(cc)
+  pdf(getfile(20), width=9, height=7)
+  grid.arrange(aa, bb, cc, ncol=1, clip=T)
+  dev.off()
+  
+}
+
+## bubble chart
+wk <- fw[which(fw$type=="Network"), ]  # not log
+myred <- brewer.pal(3, "Set2")[3]
+
+gg <- ggplot(wk, aes(sessions, bytes, size=packets, color=type, fill=type))
+gg <- gg + scale_color_brewer(palette="Set2") + xlab("Sessions") + ylab("Bytes")
+gg <- gg + geom_point(alpha=1/3, shape=21, color="gray50", guide=F) + theme_bw()
+gg <- gg + scale_size_continuous(name="Packet Count", range = c(1, 20), trans=log10_trans())
+gg <- gg + scale_x_continuous(labels=scale.filter.nb)
+gg <- gg + scale_y_continuous(labels=scale.filter, limits=c(0, max(wk$bytes)*1.1)) 
+gg <- gg + theme_sample() + theme(legend.position="none")
+gg <- gg + ggtitle("alpha = 1/3")
+
+gg <- ggplot(wk, aes(sessions, bytes, size=packets, color=type, fill=type))
+gg <- gg + xlab("Sessions") + ylab("Bytes")
+gg <- gg + geom_point(alpha=1/3, shape=21, fill=myred, color="gray80", guide=F)
+gg <- gg + theme_bw()
+gg <- gg + scale_size_continuous(name="Packet Count", range = c(1, 20), trans=log10_trans())
+gg <- gg + ggtitle("alpha = 1/3")
+gg <- gg + scale_x_continuous(labels=scale.filter.nb)
+gg <- gg + scale_y_continuous(labels=scale.filter, limits=c(0, max(wk$bytes)*1.1)) 
+gg <- gg + theme_sample() + theme(legend.position="bottom", legend.title = element_text(colour="black", size=10))
+bb <- gg
+
+#print(gg)
+#ggsave(getfile(13), gg, width=8, height=5)
+gg <- ggplot(wk, aes(sessions, bytes, size=packets, color=type, fill=type))
+#gg <- gg + scale_color_brewer(palette="Set2", guide=F)
+gg <- gg + xlab("Sessions") + ylab("Bytes")
+gg <- gg + geom_point(alpha=1, shape=21, fill=myred, color="gray80", guide=F)
+gg <- gg + theme_bw()
+gg <- gg + scale_size_continuous(name="Packet Count", breaks=c(1,10), range = c(1, 20), trans=log10_trans())
+gg <- gg + ggtitle("alpha = 1")
+gg <- gg + scale_x_continuous(labels=scale.filter.nb)
+gg <- gg + scale_y_continuous(labels=scale.filter, limits=c(0, max(wk$bytes)*1.1)) 
+gg <- gg + theme_sample() + theme(legend.position="bottom", legend.title = element_text(colour="black", size=10))
+aa <- gg
+#print(gg)
+#ggsave(getfile(13), gg, width=8, height=5)
+pdf(getfile(13), width=9, height=5)
+grid.arrange(aa, bb, ncol=2, clip=T)
+dev.off()
+
+foo <- sapply(seq(-2, 12, by=0.2), dnorm, x=seq(10))
+mfoo <- round(max(foo), 1)
+plotme <- function(x) { 
+  ff <- data.frame(y=foo[ ,x], x=seq_along(foo[ ,x]))
+  gg <- ggplot(ff, aes(x, y)) + geom_bar(stat="identity") + 
+        ylim(c(0,mfoo)) + theme_bw()
+  ggsave(paste("movie/slide", x, ".png", sep=''), gg, width=6, height=4)
+}
+sapply(seq_along(foo[1, ]), plotme)
+#plotme(foo[, 1], mfoo, frame)
+
+## simulating FW data
+jfw <- aggregate(bytes ~ hour, data=fw, FUN=sum)
+jfw$jhour <- substr(jfw$hour, 1, 2)
+jfw$jmin <- substr(jfw$hour, 3, 4)
+jfw$seq <- seq_along(jfw$hour)
+hourmod <- c(0.2, 0.2, 0.2, 0.2, 0.4, 0.6, 0.8, 1) # 1 to 8 am
+hourmod <- c(hourmod, 1.1, 1.1, 1, .9, 1.1, 1, 1, 0.8, .5) # 9 to 5 pm
+hourmod <- c(hourmod, .3, .5, .5, .4, .3, .2, .2)
+jsd <- NULL
+for(m in sprintf("%02d", seq(0, 55, by=5))) {
+  jsd <- c(jsd, sd(jfw$bytes[jfw$jmin==m]))
+}
+jmean <- mean(jsd)
+jsd <- sd(jsd)
+nmean <- mean(jfw$bytes)
+
+#      rval <- rnorm(1, mean=nmean, sd=rnorm(1, mean=jmean, sd=jsd))
+#      if(is.nan(rval)) {
+#        rval <- rnorm(1, mean=nmean, sd=rnorm(1, mean=jmean, sd=jsd))
+#      }
+
+set.seed(1492)
+outfw <- NULL
+for(d in seq(21)) {
+  for(h in seq_along(hourmod)) {
+    for(m in sprintf("%02d", seq(0, 55, by=5))) {
+      rval <- rnorm(1, mean=mean(jfw$bytes[jfw$jmin==m]), sd=sd(jfw$bytes[jfw$jmin==m]))
+      if (d==1 | d==8 | d==15) {
+        rval <- rval * (min(hourmod)+(hourmod[h]*0.18))
+      } else if (d==7 | d==14 | d==21) {
+        rval <- rval * (min(hourmod)+(hourmod[h]*0.25))
+      } else {
+        rval <- rval * hourmod[h]
+      }
+      rval <- round(rval, 0)
+      my.h <- sprintf("%02d", h)
+      fwcmp <- data.frame(hour=paste(my.h, m, sep=""), bytes=rval, day=d, hour=my.h)
+      if(is.null(outfw)) {
+        outfw <- fwcmp
+      } else {
+        outfw <- rbind(outfw, fwcmp)
+      }
+    }
+  }
+}
+
+outfw$seq <- seq_along(outfw$hour)
+plot(outfw$seq, outfw$bytes, type="l")
+plot(outfw$seq[outfw$day==3], outfw$bytes[outfw$day==3], type="l")
+outfw$day <- factor(outfw$day)
+
+outfw$dhour <- paste(sprintf("%02d", outfw$day), outfw$hour.1, sep="")
+
+
+my.fw <- read.csv("data/3weeks.csv", header=T)
+
+my.fw2 <- aggregate(bytes ~ day+hour, data=my.fw, FUN=mean)
+my.fw2$seq <- seq_along(my.fw2$day)
+
+aa <- ggplot(outfw, aes(x=seq, y=bytes)) + geom_line(color="steelblue") + theme_bw()+ scale_y_continuous(labels=scale.filter, limits=c(0, max(outfw$bytes))) + ggtitle("Basic Line Plot")
+
+bb <- ggplot(outfw2, aes(x=seq, y=bytes)) + geom_line(color="steelblue") + theme_bw()+ scale_y_continuous(labels=scale.filter, limits=c(0, max(outfw$bytes))) + ggtitle("One hour averages")
+
+cc <- ggplot(outfw, aes(x=seq, y=bytes)) + geom_point(alpha=1/2, size=1, color="steelblue") + 
+  geom_point(size=0.5, alpha=1/4, color="blue") + theme_bw() + scale_y_continuous(labels=scale.filter, limits=c(0, max(outfw$bytes))) + ggtitle("Using Points")
+
+cc <- ggplot(outfw, aes(x=day, y=bytes)) + geom_jitter(alpha=1/2, size=1, color="steelblue", position = position_jitter(width = .3)) + 
+  geom_boxplot(outlier.shape=NA, colour="gray40", fill="steelblue", alpha=1/5) + theme_bw() + scale_y_continuous(labels=scale.filter)
+  scale_x_discrete() + geom_boxplot() + theme_bw() + scale_y_continuous(labels=scale.filter)
+
+ggplot(outfw, aes(x=day, y=bytes)) + geom_boxplot(outlier.shape = NA, alpha=0.5) + theme_bw()
+  
+print(cc)
+pdf(getfile(20), width=9, height=7)
+grid.arrange(aa, bb, cc, ncol=1, clip=T)
+dev.off()
+
+foo <- read.csv("~/Downloads/sess.out.out", sep="\t", header=T)
+par$mar
+par(mar)
+# random walk
+set.seed(1)
+src <- matrix(c(rep(seq(-1, 1), 3), rep(seq(-1, 1), each=3)), ncol=2, byrow=T)
+setup <- matrix(c(0, 0), ncol=2)
+par(mar=c(0,0,0,0))
+for(i in seq(200)) { 
+  plot(setup, type="p", col="gray80", xlim=c(-20, 20), ylim=c(-20,20),  yaxt="n", ann=FALSE, xaxt="n", bty="n")
+  setup <- rbind(setup, setup[nrow(setup), ] + src[sample(1:9, 1), ])
+  points(setup[nrow(setup), 1], setup[nrow(setup), 2], type="p", pch=16, col="red")
+  Sys.sleep(0.1)
+}
+par(mar=c(5.1,4.1,4.1,2.1))
