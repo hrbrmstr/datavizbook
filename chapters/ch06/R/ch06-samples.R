@@ -697,17 +697,39 @@ grid.arrange(aa, bb, cc, ncol=1, clip=T)
 dev.off()
 
 foo <- read.csv("~/Downloads/sess.out.out", sep="\t", header=T)
-par$mar
-par(mar)
+
 # random walk
+incols <- seq(.5, 1, length.out=20)
+grays <- rev(rgb(incols, incols, incols))
 set.seed(1)
 src <- matrix(c(rep(seq(-1, 1), 3), rep(seq(-1, 1), each=3)), ncol=2, byrow=T)
 setup <- matrix(c(0, 0), ncol=2)
+p2 <- matrix(c(0, 0), ncol=2)
+p3 <- matrix(c(0, 0), ncol=2)
+p4 <- matrix(c(0, 0), ncol=2)
 par(mar=c(0,0,0,0))
-for(i in seq(200)) { 
-  plot(setup, type="p", col="gray80", xlim=c(-20, 20), ylim=c(-20,20),  yaxt="n", ann=FALSE, xaxt="n", bty="n")
+for(i in seq(2000)) { 
+  png(paste("movie/rw-", sprintf("%04d", i), ".png", sep=""))
+  plot(setup[seq(max(1,i-19), i), ], type="p", col=grays, xlim=c(-70, 70), ylim=c(-70,70),  yaxt="n", ann=FALSE, xaxt="n", bty="n")
   setup <- rbind(setup, setup[nrow(setup), ] + src[sample(1:9, 1), ])
   points(setup[nrow(setup), 1], setup[nrow(setup), 2], type="p", pch=16, col="red")
-  Sys.sleep(0.1)
+  if (i > 200) {
+    points(p2[seq(max(1,i-219), i-200), ], type="p", col=grays)
+    p2 <- rbind(p2, p2[nrow(p2), ] + src[sample(1:9, 1), ])
+    points(p2[nrow(p2), 1], p2[nrow(p2), 2], type="p", pch=16, col="blue")
+  }
+  if (i > 400) {
+    points(p3[seq(max(1,i-419), i-400), ], type="p", col=grays)
+    p3 <- rbind(p3, p3[nrow(p3), ] + src[sample(1:9, 1), ])
+    points(p3[nrow(p3), 1], p3[nrow(p3), 2], type="p", pch=16, col="green")
+  }
+  if (i > 600) {
+    points(p4[seq(max(1,i-619), i-600), ], type="p", col=grays)
+    p4 <- rbind(p4, p4[nrow(p4), ] + src[sample(1:9, 1), ])
+    points(p4[nrow(p4), 1], p4[nrow(p4), 2], type="p", pch=16, col="purple")
+  }
+  dev.off()
+#  Sys.sleep(0.1)
 }
-par(mar=c(5.1,4.1,4.1,2.1))
+  par(mar=c(5.1,4.1,4.1,2.1))
+  
