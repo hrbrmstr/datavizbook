@@ -34,6 +34,9 @@ theme_sample <- function() {
 fw <- read.csv("data/fivemin.csv", header=T)
 
 if (runall) {
+  fw <- read.csv("data/fivemin.csv", header=T)
+  
+  fw <- read.csv("data/fivemin.csv", header=T)
   fullfw <- aggregate(cbind(packets, bytes, sessions) ~ hour, data=fw, FUN=sum)
   fullfw <- fullfw[order(fullfw$hour), ] # want to be sure we're still sorted
   fullfw$iter <- seq_along(fullfw$hour)
@@ -82,6 +85,7 @@ figure <- figure + 1
   
 
 if (runall) {
+  fw <- read.csv("data/fivemin.csv", header=T)
   fullfw <- aggregate(cbind(packets, bytes) ~ hour, data=fw, FUN=sum)
   gg <- ggplot(fullfw, aes(packets, bytes))
   gg <- gg + geom_point(size=3, color="#000066")
