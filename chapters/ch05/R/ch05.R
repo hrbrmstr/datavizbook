@@ -3,7 +3,7 @@ library(scales)
 
 ########################################################
 # read the CSV with headers
-za <- read.csv("data/zeroaccess.csv", header=F)
+za <- read.csv("data/zeroaccess.csv", header=T)
 
 # create a ggplot instance with zeroaccess data
 gg <- ggplot(data=za, aes(x=long, y=lat)) 
@@ -38,6 +38,7 @@ print(gg)
 ########################################################
 # slightly modified verison of Ryan Weald’s (@rweald) function
 # https://gist.github.com/rweald/4720788
+library(maptools)
 latlong2map <- function(pointsDF, mapping) {
   # load up the map data
   local.map <- map(mapping, fill=TRUE, col="transparent", plot=FALSE)
@@ -214,7 +215,11 @@ temp.matrix <- matrix(temp.list, ncol=2, byrow=T)
 za.county <- data.frame(temp.matrix, as.vector(county.count))
 # finally assign names to the fields
 # names match the field names in the county map_data 
+#### TODO : the za is not found below, is "infections" supposed to be "za"?
 colnames(za.county) <- c("region", "subregion", "infections")
+
+### TODO : I think so
+colnames(za.county) <- c("region", "subregion", "za")
 
 ########################################################
 # read up census data per county
@@ -262,6 +267,11 @@ summary(lm(za.by.pop ~ ufo.by.pop, data=za.county))
 
 ########################################################
 summary(lm(za ~ pop, data=za.county))
+
+# this prediction is mentioned briefly in Chapter 9:
+zapop.lm <- lm(za ~ pop, data=za.county)
+predict(zapop.lm, data.frame(pop=6000000), interval="confidence")
+
 
 
 

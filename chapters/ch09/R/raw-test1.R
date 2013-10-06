@@ -38,3 +38,48 @@ plot(o.recv)
 source("~/Documents/school/stat510/itall.R")
 
 
+
+# and here's a regression example
+-0.1678 + 0.0008313*6000000
+
+## ML examples, simple and easy
+# 
+library(ggplot2)
+set.seed(1492)
+# create the training data
+training <- data.frame(x=rnorm(100)+1, y=rnorm(100)+1, type="A")
+training <- rbind(first.ml, data.frame(x=rnorm(100)-1, y=rnorm(100)-1, type="B"))
+
+#create test data
+test <- data.frame(x=rnorm(50)+1, y=rnorm(50)+1, type="A")
+test <- rbind(test, data.frame(x=rnorm(50)-1, y=rnorm(50)-1, type="B"))
+
+# plot it
+ggplot(first.ml, aes(x, y, color=type)) + scale_color_brewer(palette="Set2") + 
+  geom_point(size=3) + theme_bw()
+
+# get the means of the two types
+traina <- colMeans(training[training$type=="A", c("x", "y")])
+traina
+##         x         y
+## 1.0020913 0.9832088
+trainb <- colMeans(training[training$type=="B", c("x", "y")])
+trainb
+##          x          y 
+## -0.8653709 -1.0049510 
+
+prediction <- apply(test, 1, function(row) {
+  x <- as.numeric(row[['x']])
+  y <- as.numeric(row[['y']])
+  dista <- sqrt((traina[1]-x)^2 + (traina[2]-y)^2)
+  distb <- sqrt((trainb[1]-y)^2 + (trainb[2]-y)^2)
+  ifelse(dista<distb,"A", "B")
+})
+head(prediction, 10)
+##   1   2   3   4   5   6   7   8   9  10 
+## "A" "A" "A" "A" "A" "B" "A" "A" "A" "B" 
+sum(guess[1:50]=="A")
+## [1] 39
+sum(guess[51:100]=="B")
+## [1] 47
+
