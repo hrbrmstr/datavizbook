@@ -47,14 +47,16 @@ predict.malware <- function(proc, mem) {
   # set up infected comparison
   inf.a <- inf['proc'] - proc
   inf.b <- inf['mem'] - mem
-  # distsance c = sqrt(a^2 + b^2)
+  # pythagorean distance c = sqrt(a^2 + b^2)
   inf.dist <- sqrt(inf.a^2 + inf.b^2)
   # repeat for normal systems
   nrm.a <- nrm['proc'] - proc
   nrm.b <- nrm['mem'] - mem
   nrm.dist <- sqrt(nrm.a^2 + nrm.b^2)
+  # assign a label of the closest (smallest)
   ifelse(inf.dist<nrm.dist,"Infected", "Normal")
 }
+
 predict.malware(inf['proc'], inf['mem'])
 predict.malware(nrm['proc'], nrm['mem'])
 
