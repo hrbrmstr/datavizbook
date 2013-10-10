@@ -1,5 +1,6 @@
 library(ggplot2)
 library(scales)
+library(maptools)
 
 ########################################################
 # read the CSV with headers
@@ -39,6 +40,10 @@ print(gg)
 # slightly modified verison of Ryan Weald’s (@rweald) function
 # https://gist.github.com/rweald/4720788
 library(maptools)
+library(sp)
+library(maps)
+library(maptools)
+
 latlong2map <- function(pointsDF, mapping) {
   # load up the map data
   local.map <- map(mapping, fill=TRUE, col="transparent", plot=FALSE)
