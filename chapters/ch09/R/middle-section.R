@@ -52,3 +52,46 @@ ggsave("figures/793725c06f004.eps", gg, width=7, height=2)
 # estimate where?  0.4 for now.
 goo <- ifelse(foo>0.4, 1, 0)
 sum(goo==test$infected)/length(goo)
+
+
+##### K-means
+
+set.seed(1)
+x <- c(rnorm(200), rnorm(400)+2, rnorm(400)-2)
+y <- c(rnorm(200), rnorm(200)+2, rnorm(200)-2, rnorm(200)+2, rnorm(200)-2)
+randata <- data.frame(x=x, y=y)
+out <- list()
+for(i in c(3,4,5,6)) {
+  km <- kmeans(randata, i)
+  centers <- data.frame(x=km$centers[ ,1], y=km$centers[ ,2], cluster=1)
+  randata$cluster <- factor(km$cluster)
+  
+  
+  gg <- ggplot(randata, aes(x, y, color=cluster)) + geom_point(size=2)
+  gg <- gg + geom_point(data=centers, aes(x, y), shape=8, color="black", size=4)
+  gg <- gg + scale_x_continuous(expand=c(0,0.1))
+  gg <- gg + scale_y_continuous(expand=c(0,0.1))
+  gg <- gg + ggtitle(paste("k-means with", i, "clusters"))
+  gg <- gg + theme(panel.grid = element_blank(),
+                   panel.background = element_rect(colour = "black", fill=NA),
+                   axis.text = element_blank(),
+                   axis.title = element_blank(),
+                   legend.position = "none",
+                   axis.ticks = element_blank())
+#  print(gg)
+  out[[i-2]] <- gg
+}
+setEPS()
+postscript(file="figures/793725c06f005.eps", paper="special", 
+           width=8, height=6, horizontal=FALSE) 
+grid.arrange(out[[1]], out[[2]], out[[3]], out[[4]], ncol=2, clip=T)
+dev.off()
+
+
+print(gg)
+
+
+
+
+
+
