@@ -161,6 +161,8 @@ za.norm <- data.frame(region=za.users$region,
                       count=za.users$pop2inf)
 za.norm.map <- merge(state, za.norm)
 # now create the choropleth
+library(scales)
+
 gg <- ggplot(za.norm.map, aes(x=long, y=lat, group=group, fill=count))
 gg <- gg + geom_polygon(colour="black")
 gg <- gg + coord_map("polyconic")
@@ -171,6 +173,7 @@ gg <- gg + theme_plain()
 print(gg)
 
 ########################################################
+library(grid)
 # create a box plot of the count
 popbox <- boxplot(za.norm$count, 
                   main="Distribution of Normalized\nState Infections")
