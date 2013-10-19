@@ -1,8 +1,21 @@
-library(ggplot2)
-library(scales)
-library(maptools)
+# set working directory to chapter location
+# (change for where you set up files in ch 2)
+setwd("~/book/ch05")
+# make sure the packages for this chapter
+# are installed, install if necessary
+pkg <- c("ggplot2", "scales", "maptools",
+              "sp", "maps", "grid", "car" )
+new.pkg <- pkg[!(pkg %in% installed.packages())]
+if (length(new.pkg)) {
+  install.packages(new.pkg)  
+}
+
 
 ########################################################
+## Listing 5-1
+########################################################
+# Load ggplot2 to create graphics
+library(ggplot2)
 # read the CSV with headers
 za <- read.csv("data/zeroaccess.csv", header=T)
 
@@ -14,9 +27,17 @@ gg <- gg + geom_point(size=1, color="#000099", alpha=1/40)
 gg <- gg + xlab("Longitude") + ylab("Latitude")
 # simplify the theme for aesthetics
 gg <- gg + theme_bw() 
+# this may take a while, over 800,000 points plotted
 print(gg)
+## ggsave("figures/793725c05f001.png", gg, width=8, height=5)
+## ggsave("figures/793725c05f001.pdf", gg, width=8, height=5)
 
-########################################################
+#######################################################################
+## Listing 5-2
+#######################################################################
+# requires package : ggplot2
+# requires object: za (5-1)
+# the "maps" and "mapproj" packages are used by ggplot
 # load map data of the world
 world <- map_data("world")
 # nothing personal penguins, but strip out Antarctica
@@ -31,19 +52,26 @@ gg <- gg + coord_map("mercator", xlim=c(-200, 200))
 # load up the ZeroAccess points, overiding the default data set
 gg <- gg + geom_point(data=za, aes(long, lat), 
                       colour="#000099", alpha=1/40, size=1)
-# add axes labels and theme
-gg <- gg + xlab("Longitude") + ylab("Latitude")
-gg <- gg + theme_bw()
+# remove text, axes ticks, grid lines and do gray border on white
+gg <- gg + theme(text=element_blank(), 
+                 axis.ticks=element_blank(),
+                 panel.grid=element_blank(),
+                 panel.background=element_rect(color="gray50",
+                                               fill="white"))
 print(gg)
+## ggsave("figures/793725c05f003.png", gg, width=8, height=5)
+## ggsave("figures/793725c05f003.pdf", gg, width=8, height=5)
 
-########################################################
-# slightly modified verison of Ryan Weald’s (@rweald) function
-# https://gist.github.com/rweald/4720788
-library(maptools)
-library(sp)
+#######################################################################
+## Listing 5-3
+#######################################################################
+# require packages: maps, maptools
+# packages are not required to create function
+# but it cannot be executed without these loaded
 library(maps)
 library(maptools)
-
+# slightly modified verison of Ryan Weald’s (@rweald) function
+# https://gist.github.com/rweald/4720788
 latlong2map <- function(pointsDF, mapping) {
   # load up the map data
   local.map <- map(mapping, fill=TRUE, col="transparent", plot=FALSE)
@@ -63,7 +91,11 @@ latlong2map <- function(pointsDF, mapping) {
   mapNames[indices]
 }
 
-########################################################
+#######################################################################
+## Listing 5-4
+#######################################################################
+# requires package: ggplot2, maps, maptools
+# requires objects: za (5-1), world (5-2), latlong2map (5-3)
 # convert ZeroAccess long/lat into country names from world map
 zworld <- latlong2map(data.frame(x=za$long, y=za$lat), "world")
 # count up points in the country and conver to data frame
@@ -80,22 +112,52 @@ gg <- ggplot(za.choro, aes(x=long, y=lat, group=group, fill=count))
 gg <- gg + geom_path(colour="#666666") + geom_polygon()
 gg <- gg + coord_map("mercator", xlim=c(-200, 200), ylim=c(-60,200))
 gg <- gg + scale_fill_gradient2(low="#FFFFFF", high="#4086AA", 
-                                midpoint=median(za.choro$count))
-gg <- gg + theme_plain()
+                                midpoint=median(za.choro$count),
+                                name="Infections")
+# remove text, axes ticks, grid lines and do gray border on white
+gg <- gg + theme(axis.title=element_blank(), 
+                 axis.text=element_blank(),
+                 axis.ticks=element_blank(),
+                 panel.grid=element_blank(),
+                 panel.background=element_rect(color="gray50",
+                                               fill="white"))
 print(gg)
+## ggsave("figures/793725c05f004.eps", gg, width=8, height=5)
 
-########################################################
+#######################################################################
+## Listing 5-5
+#######################################################################
+# requires object: wct (5-4)
+head(wct)
+##        region count
+## 1 Afghanistan    53
+## 2     Albania  1166
+## 3     Algeria  3014
+## 4     Andorra     4
+## 5      Angola   160
+## 6   Argentina  6016
+
 # for each wct$count, divide by sum, gives us proportion of the whole
 perc <- wct$count/sum(wct$count)
-# covert to a readable format, round it and create percentage.
+# covert to a readable format, round it and create percent
 wct$perc <- round(perc, 4)*100
 # now order the highest percentages on top
 wct <- wct[with(wct, order(perc, decreasing=T)), ]
 # look at the top few entries.
 head(wct)
+##      region  count  perc
+## 148     USA 261627 35.23
+## 24   Canada  35607  4.79
+## 74    Japan  33590  4.52
+## 145      UK  31813  4.28
+## 50  Germany  27336  3.68
+## 71    Italy  25717  3.46
 
-
-########################################################
+#######################################################################
+## Listing 5-6
+#######################################################################
+# requires package: ggplot2, maps, maptools
+# requires objects: za (5-1), world (5-2), latlong2map (5-3)
 zstate <- latlong2map(data.frame(x=za$long, y=za$lat), "state")
 # select rows from za where the zstate is not NA
 za.state <- za[which(!is.na(zstate)), ]
