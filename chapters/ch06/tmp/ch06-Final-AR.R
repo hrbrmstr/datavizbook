@@ -3,13 +3,83 @@
 setwd("~/book/ch06")
 # make sure the packages for this chapter
 # are installed, install if necessary
-pkg <- c("ggplot2", "scales", "grid", 
-         "gridExtra", "gdata", "RColorBrewer", 
-         "portfolio")
+pkg <- c("ggplot2", "scales", "maptools",
+          )
 new.pkg <- pkg[!(pkg %in% installed.packages())]
 if (length(new.pkg)) {
   install.packages(new.pkg)  
 }
+
+
+library(ggplot2)
+library(scales)
+library(grid)
+library(gridExtra)
+library(gdata)
+library(RColorBrewer)
+library(portfolio) # for treemap only
+
+# load these functions:
+theme_plain <- function() {
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        panel.background = element_blank(),
+        panel.border =  element_rect(fill=NA, colour = "gray50", size=0.5),
+        panel.grid = element_blank(),
+        axis.ticks.length = unit(0, "cm"),
+        axis.ticks.margin = unit(0, "cm"),
+        panel.margin = unit(0, "lines"),
+        plot.margin = unit(c(0.5,0.5,0.5,0.5), "lines"),
+        complete=TRUE)
+}
+
+theme_plain2 <- function() {
+  theme(#axis.title = element_blank(),
+    axis.text = element_blank(),
+    panel.background = element_blank(),
+    panel.border =  element_blank(), # element_rect(fill=NA, colour = "black", size=1),
+    panel.grid = element_blank(),
+    axis.ticks.length = unit(0, "cm"),
+    axis.ticks.margin = unit(0, "cm"),
+    panel.margin = unit(0, "lines"),
+    plot.margin = unit(c(0.5,0,0,0), "lines"),
+    complete=TRUE)
+}
+theme_plain4 <- function() {
+  theme(#axis.title = element_blank(),
+    #axis.text = element_blank(),
+    panel.background = element_blank(),
+    panel.border =  element_blank(), # element_rect(fill=NA, colour = "black", size=1),
+    panel.grid = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.ticks.length = unit(0.2, "cm"),
+    axis.ticks.margin = unit(0.2, "cm"),
+    panel.margin = unit(0, "lines"),
+    plot.margin = unit(c(0.5,0.5,1,0.5), "lines"),
+    complete=TRUE)
+}
+scale.filter <- function(x) {
+  x[is.na(x)] <- 0
+  humanReadable(x)
+}
+scale.filter.nb <- function(x) {
+  x[is.na(x)] <- 0
+  sub("B", "", humanReadable(x))
+}
+getfile <- function(x) {
+  paste("figures/test-793725c06f", sprintf("%03d", x), ".pdf", sep="")
+}
+theme_sample <- function() {
+  theme_bw() + theme(legend.title=element_blank(),
+                     panel.border=element_blank(),
+                     panel.grid.major.y=element_line(color="gray80"),
+                     panel.grid.major.x=element_line(color="gray80"),
+                     panel.grid.minor=element_blank(),
+                     axis.ticks.length = unit(0, "cm"),
+                     axis.ticks.margin = unit(0.1, "cm"),
+                     legend.background = element_rect(colour = '#FFFFFF00', fill = '#FFFFFF', size = 0.4))
+}
+
 
 # Figure 6-1 #########################################################
 # requires package: ggplot2, grid
@@ -44,6 +114,7 @@ first <- first + theme(
   axis.ticks = element_blank(),
   plot.margin = unit(c(0.5,0,0,0), "lines"))
 print(first)
+# ggsave("figures/793725c06f001.eps", plot=first, width=15, height=2)
 
 # Figure 6-2 #########################################################
 # requires package: ggplot2, grid
@@ -59,6 +130,7 @@ second <- second + theme(
   axis.ticks = element_blank(),
   plot.margin = unit(c(0.5,0,0,0), "lines"))
 print(second)
+# ggsave("figures/793725c06f002.eps", plot=second, width=15, height=2)
 
 
 # Figure 6-3 #########################################################
@@ -110,6 +182,11 @@ ff <- base + geom_point(size=5)
 ff <- ff + geom_point(data=datums, size=12, shape=21)
 ff <- ff + ggtitle("Enclosure (f)")
 grid.arrange(aa,bb,cc,dd,ee,ff, ncol=3, clip=T)
+# setEPS()
+# postscript(file="figures/793725c06f003.eps", paper="special", 
+#             width=9, height=6, horizontal=FALSE) 
+# grid.arrange(aa,bb,cc,dd,ee,ff, ncol=3, clip=T)
+# dev.off()
 
 # Figure 6-4 #########################################################
 # requires package: ggplot2, grid, gridExtra
@@ -144,6 +221,11 @@ bb <- bb + ggtitle("Shape (b)")
 cc <- base + geom_point(size=sz, shape=shp, color="gray40", fill=as.character(cls), show_guide=F)
 cc <- cc + ggtitle("Shape and Color (c)")
 grid.arrange(aa,bb,cc, ncol=3, clip=T)
+# setEPS()
+# postscript(file="figures/793725c06f004.eps", paper="special", 
+#             width=9, height=3, horizontal=FALSE) 
+# grid.arrange(aa,bb,cc, ncol=3, clip=T)
+# dev.off()
 
 ## Figure 6.5 in not generated in R
 
@@ -180,6 +262,11 @@ bb <- bb + theme(panel.background = element_blank(),
 
 grid.arrange(aa, bb, ncol=2, clip=T)
 
+setEPS()
+postscript(file="figures/793725c06f006.eps", paper="special", 
+           width=10, height=4, horizontal=FALSE) 
+grid.arrange(aa, bb, ncol=2, clip=T)
+dev.off()
 
 
 # Figure 6.7 was not generated in R
@@ -190,6 +277,10 @@ library(RColorBrewer)
 # Note: this does not use ggplot, but instead
 # creates a blank canvas and puts text and boxes on it.
 # a neat trick for truly unique approaches.
+#pdf(getfile(8), width=8, height=2)
+setEPS()
+postscript(file="figures/793725c06f008.eps", paper="special", 
+           width=8, height=2, horizontal=FALSE) 
 par(mar=c(0,0,0,0))
 plot(NULL, xlim=c(0,120), ylim=c(50,100), yaxt="n", ann=FALSE, xaxt="n", bty="n")
 text(17.5,89, "Sequantial", pos=3)
@@ -229,6 +320,7 @@ for (i in seq(5)) {
   rect(80+(i*5), 60, (i*5)+85, 66, col=ygb[i], border=NA)
 }
 par(mar=c(5.1,4.1,4.1,2.1))
+dev.off()
 
 # Figure 6-9 #########################################################
 # requires packages: ggplot2, gdata
@@ -255,6 +347,7 @@ gg <- gg + theme(legend.title=element_blank(),
                  axis.ticks = element_blank(),
                  panel.background=element_blank())
 print(gg)
+# ggsave("figures/793725c06f009.eps", plot=gg, width=8, height=5)
 
 # Figure 6-10 #########################################################
 # requires packages: ggplot2, gdata
@@ -286,6 +379,8 @@ gg <- gg + theme(legend.title=element_blank(),
                  axis.ticks = element_blank(),
                  panel.background=element_blank())
 print(gg)
+
+# ggsave("figures/793725c06f010.eps", gg, width=8, height=2.5)  
 
 
 # Figure 6-11 #########################################################
@@ -322,6 +417,11 @@ bb <- bb + theme(legend.title=element_blank(),
                  panel.background=element_blank(),
                  legend.position = "bottom")
 grid.arrange(bb, aa, ncol=2, clip=T)
+# setEPS()
+# postscript(file="figures/793725c06f011.eps", paper="special", 
+#            width=11, height=5, horizontal=FALSE) 
+# grid.arrange(bb, aa, ncol=2, clip=T)
+# dev.off()
 
 # Figure 6-12 #########################################################
 # requires packages: ggplot2, gdata, gridExtra
@@ -373,6 +473,12 @@ cc <- cc + theme(legend.title=element_blank(),
                  legend.position = "bottom")
 
 grid.arrange(aa, bb ,cc, ncol=3, clip=T)
+# setEPS()
+# postscript(file="figures/793725c06f012.eps", paper="special", 
+#            width=12, height=4, horizontal=FALSE) 
+# grid.arrange(aa, bb ,cc, ncol=3, clip=T)
+# dev.off()
+
 
 # Figure 6-13 #########################################################
 # requires packages: ggplot2, grid, gridExtra, scales
@@ -416,15 +522,22 @@ bb <- bb + theme(legend.title=element_blank(),
 
 grid.arrange(aa, bb, ncol=2, clip=T)
 
+png("figures/793725c06f013.png", width=2700, height=1500)
+#pdf("figures/793725c06f013.pdf", width=9, height=5)
+grid.arrange(aa, bb, ncol=2, clip=T)
+dev.off()
+
 # Figure 6-14 #########################################################
 # requires packages: portfolio  (for treemap)
 library(portfolio)
 mydata <- read.csv("data/ipmap2.csv", header=T)
   mydata$mean <- mydata$sessions/mydata$count
-  # this adds stuff, I removed it with inkscape
+  # this adds stuff, I removed it with inkscape before sending to publisher
+  pdf(getfile(14), width=9, height=5)
   map.market(id=mydata$label, area=sqrt(mydata$count)^1.3, group=mydata$type, 
              color=sqrt(mydata$mean), main="remove all but treemap", 
              lab= c("group"=F, "id"=T))
+  dev.off()
 }
 
 # Figure 6-15 #########################################################
@@ -458,6 +571,11 @@ bb <- bb + theme(legend.title=element_blank(),
 print(bb)
 
 grid.arrange(aa, bb, ncol=2, clip=T)
+
+#  pdf(getfile(15), width=8, height=4)
+#  grid.arrange(aa, gg, ncol=2, clip=T)
+#  dev.off()
+
 
 # Figure 6.16 and 6.17 were created in R, but not for the book
 
