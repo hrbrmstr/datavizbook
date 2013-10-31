@@ -27,6 +27,8 @@ gg <- gg + xlab("Longitude") + ylab("Latitude")
 gg <- gg + theme_bw() 
 # this may take a while, over 800,000 points plotted
 print(gg)
+## ggsave("figures/793725c05f001.png", gg, width=8, height=5)
+## ggsave("figures/793725c05f001.pdf", gg, width=8, height=5)
 
 # Listing 5-2 #########################################################
 # requires package : ggplot2
@@ -53,6 +55,8 @@ gg <- gg + theme(text=element_blank(),
                  panel.background=element_rect(color="gray50",
                                                fill="white"))
 print(gg)
+## ggsave("figures/793725c05f003.png", gg, width=8, height=5)
+## ggsave("figures/793725c05f003.pdf", gg, width=8, height=5)
 
 # Listing 5-3 #########################################################
 # require packages: maps, maptools
@@ -110,6 +114,7 @@ gg <- gg + theme(axis.title=element_blank(),
                  panel.background=element_rect(color="gray50",
                                                fill="white"))
 print(gg)
+## ggsave("figures/793725c05f004.eps", gg, width=8, height=5)
 
 # Listing 5-5 #########################################################
 # requires object: wct (5-4)
@@ -159,6 +164,8 @@ gg <- gg + theme(axis.title=element_blank(),
                  panel.grid=element_blank(),
                  panel.background=element_blank())
 print(gg)
+## ggsave("figures/793725c05f005.png", gg, width=7, height=6)
+## ggsave("figures/793725c05f005.pdf", gg, width=7, height=6)
 
 # Listing 5-7 #########################################################
 # requires package: ggplot2, maps, maptools
@@ -191,6 +198,7 @@ gg <- gg + theme(axis.title=element_blank(),
                  panel.grid=element_blank(),
                  panel.background=element_blank())
 print(gg)
+## ggsave("figures/793725c05f006.eps", gg, width=9, height=6)
 
 # Listing 5-8 #########################################################
 # requires package: ggplot2, maps, maptools
@@ -224,11 +232,18 @@ gg <- gg + theme(axis.title=element_blank(),
                  panel.grid=element_blank(),
                  panel.background=element_blank())
 print(gg)
+## ggsave("figures/793725c05f007.eps", gg, width=9, height=6)
 
 # Listing 5-9 #########################################################
 # requires objects: za.norm (5-8)
 # create a box plot of the count
 popbox <- boxplot(za.norm$count)
+
+# setEPS()
+# postscript(file="figures/793725c05f008.eps", paper="special", 
+#            width=8, height=8, horizontal=FALSE) 
+# boxplot(za.norm$count)
+# dev.off()
 
 # Listing 5-10 ########################################################
 # requires objects: za.norm (5-8), popbox (5-9)
@@ -355,6 +370,7 @@ gg <- gg + geom_point()
 gg <- gg + geom_smooth(method = "lm", se=F, color="red")
 gg <- gg + theme_bw()
 print(gg)
+## ggsave("figures/793725c05f009.eps", gg, width=8, height=6)
 
 # Listing 5-18 ########################################################
 # requires objects: input (5-16), output (5-17)
@@ -503,6 +519,11 @@ ginf <- ginf + theme(axis.title=element_blank(),
                      panel.background=element_blank())
 #print(ginf)
 grid.arrange(ginf,gpop)
+setEPS()
+postscript(file="figures/793725c05f010.eps", paper="special", 
+           width=9, height=11, horizontal=FALSE) 
+grid.arrange(ginf,gpop)
+dev.off()
 
   # this prediction is mentioned briefly in Chapter 9:
 zapop.lm <- lm(infections ~ pop, data=za.county)
