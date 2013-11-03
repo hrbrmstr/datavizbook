@@ -1,3 +1,13 @@
+########################################
+## This generated the data, do not share
+set.seed(1492)
+training <- data.frame(x=rnorm(53)+1, y=rnorm(53)+1, type="Infected")
+training <- rbind(training, data.frame(x=rnorm(194)-1, y=rnorm(194)-1, type="Normal"))
+hosts <- paste0("crisnd", sprintf("%04d", sample(9999, nrow(training))))
+training <- cbind(system=hosts, training[sample(nrow(training)), ])
+names(training) <- c("host", "proc", "mem", "state")
+write.csv(training, "data/memproc.csv", row.names=F)
+
 # Listing 9-0 #########################################################
 # set working directory to chapter location
 # (change for where you set up files in ch 2)
@@ -30,6 +40,7 @@ gg <- ggplot(memproc, aes(proc, mem, color=state))
 gg <- gg + scale_color_brewer(palette="Set2")
 gg <- gg + geom_point(size=3) + theme_bw()
 print(gg)
+# ggsave("figures/793725c09f001.eps", gg, width=8, height=5)
 
 # Listing 9-3 #########################################################
 # requires package : ggplot2
@@ -110,6 +121,7 @@ gg <- gg + scale_color_brewer(palette="Set2")
 gg <- gg + geom_point() + theme_bw()
 gg <- gg + geom_abline(intercept = intercept, slope = slope, color="gray80")
 print(gg)
+# ggsave("figures/793725c09f002.eps", gg, width=8, height=5)
 
 # Figure 9-3 #########################################################
 # requires package : ggplot2
@@ -121,6 +133,7 @@ smooth <- ggplot(data.frame(x,y), aes(x, y)) + geom_point() +
   geom_smooth(method = "lm", formula = y ~ poly(x, 3), size = 1, se=F) + 
   theme_bw()
 print(smooth)
+#ggsave("figures/793725c09f003.eps", smooth, width=7, height=5)
 
 # Figure 9-4 #########################################################
 # requires package : ggplot2
@@ -141,6 +154,7 @@ gg <- ggplot(data.frame(x=modelog, y=ifelse(test$infected>0.5, "Yes", "No")), ae
   ylab("Known Infected Host") +
   xlab("Estimated Probability of Infected Host") + theme_bw()
 print(gg)
+#ggsave("figures/793725c09f004.eps", gg, width=7, height=2)
 
 # Figure 9-5 #########################################################
 set.seed(1) # repeatable
@@ -169,6 +183,12 @@ print(out[[1]])
 print(out[[2]])
 print(out[[3]])
 print(out[[4]])
+# library(gridExtra)
+# setEPS()
+# postscript(file="figures/793725c09f005.eps", paper="special", 
+#            width=8, height=6, horizontal=FALSE) 
+# grid.arrange(out[[1]], out[[2]], out[[3]], out[[4]], ncol=2, clip=T)
+# dev.off()
 
 
 # Listing 9-8 #########################################################
@@ -237,6 +257,7 @@ txt.label <- industry2$short[which(industry2$code %in% ind.label)]
 # requires object : cmd (9-10), ind.counts, txt.label (9-11) 
 library(ggplot2)
 indf <- data.frame(x=cmd[ ,1], y=cmd[, 2], label=txt.label, size=ind.counts)
+library(ggplot2)
 gg <- ggplot(indf, aes(x, y, label=label, size=size))
 gg <- gg + scale_size(trans="log2", range=c(10,30), guide=F)
 gg <- gg + geom_point(fill="lightsteelblue", color="white", shape=21)
@@ -249,6 +270,8 @@ gg <- gg + theme(panel.grid = element_blank(),
                  axis.title = element_blank(),
                  axis.ticks = element_blank())
 print(gg)
+#ggsave("figures/793725c09f006.eps", gg, width=8, height=5)
+
 
 # Listing 9-13 #########################################################
 # requires object : imat (9-9), txt.label (9-11)
@@ -259,6 +282,11 @@ idist <- dist(imat, 'canberra')
 # hclust couldn't be easier
 hc <- hclust(idist) # , method="complete")
 plot(hc)
+# setEPS()
+# postscript(file="figures/793725c09f007.eps", paper="special", 
+#            width=8, height=5, horizontal=FALSE) 
+# plot(hc)
+# dev.off()
 
 # Listing 9-14 #########################################################
 # requires package : ggplot2
@@ -281,3 +309,4 @@ gg <- gg + theme(panel.grid = element_blank(),
                  axis.ticks = element_blank())
 
 print(gg)
+#ggsave("figures/793725c09f008.eps", gg, width=8, height=5)
