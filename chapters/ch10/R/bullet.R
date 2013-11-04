@@ -1,3 +1,8 @@
+# 
+# Listing 10-1
+#
+# Bulletgraphs in R
+
 library(ggplot2)
 
 # make a bullet graph (retuns a ggplot2 object)
