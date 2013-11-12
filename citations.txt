@@ -1,0 +1,34 @@
+aplpack: Peter Wolf and Uni Bielefeld (2013). aplpack: Another Plot PACKage: stem.leaf, bagplot, faces, spin3R,
+plotsummary, plothulls, and some slider functions. R package version 1.2.9. http://CRAN.R-project.org/package=aplpack 
+binom: Sundar Dorai-Raj (2009). binom: Binomial Confidence Intervals For Several Parameterizations. R package version 1.0-5. http://CRAN.R-project.org/package=binom 
+car: John Fox and Sanford Weisberg (2011). An {R} Companion to Applied Regression, Second Edition. Thousand Oaks CA: Sage. URL: http://socserv.socsci.mcmaster.ca/jfox/Books/Companion 
+colorspace: Ross Ihaka, Paul Murrell, Kurt Hornik, Jason C. Fisher, Achim Zeileis (2013). colorspace: Color Space Manipulation. R package version 1.2-2. URL http://CRAN.R-project.org/package=colorspace 
+colorspace: Achim Zeileis, Kurt Hornik, Paul Murrell (2009). Escaping RGBland: Selecting Colors for Statistical Graphics. Computational Statistics & Data Analysis, 53, 3259-3270. doi:10.1016/j.csda.2008.11.033 
+devtools: Hadley Wickham and Winston Chang (2013). devtools: Tools to make developing R code easier. R package version 1.3. http://CRAN.R-project.org/package=devtools 
+effects: John Fox (2003). Effect Displays in R for Generalised Linear Models. Journal of Statistical Software, 8(15), 1-27. URL http://www.jstatsoft.org/v08/i15/. 
+effects: John Fox, Jangman Hong (2009). Effect Displays in R for Multinomial and Proportional-Odds Logit Models: Extensions to the effects Package. Journal of Statistical Software, 32(1), 1-24. URL http://www.jstatsoft.org/v32/i01/. 
+gdata: Gregory R. Warnes, Ben Bolker, Gregor Gorjanc, Gabor Grothendieck, Ales Korosec, Thomas Lumley, Don MacQueen, Arni Magnusson, Jim Rogers and others (2013). gdata: Various R programming tools for data manipulation. R package version 2.13.2. http://CRAN.R-project.org/package=gdata 
+ggdendro: Andrie de Vries and Brian D. Ripley (2013). ggdendro: Tools for extracting dendrogram and tree diagram plot data for
+use with ggplot.. R package version 0.1-14. http://CRAN.R-project.org/package=ggdendro 
+ggmap: David Kahle and Hadley Wickham (2013). ggmap: A package for spatial visualization with Google Maps and
+OpenStreetMap. R package version 2.3. http://CRAN.R-project.org/package=ggmap 
+ggplot2: H. Wickham. ggplot2: elegant graphics for data analysis. Springer New York, 2009. 
+ggthemes: Jeffrey B. Arnold (2013). ggthemes: Extra themes, scales and geoms for ggplot. R package version 1.5.1. http://CRAN.R-project.org/package=ggthemes 
+grid: R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL http://www.R-project.org/. 
+gridExtra: Baptiste Auguie (2012). gridExtra: functions in Grid graphics. R package version 0.9.1. http://CRAN.R-project.org/package=gridExtra 
+lattice: Sarkar, Deepayan (2008) Lattice: Multivariate Data Visualization with R. Springer, New York. ISBN 978-0-387-75968-5 
+maps: Original S code by Richard A. Becker and Allan R. Wilks. R version by Ray Brownrigg. Enhancements by Thomas P Minka <tpminka@media.mit.edu> (2013). maps: Draw Geographical Maps. R package version 2.3-6. http://CRAN.R-project.org/package=maps 
+maptools: Roger Bivand and Nicholas Lewin-Koh (2013). maptools: Tools for reading and handling spatial objects. R package version 0.8-27. http://CRAN.R-project.org/package=maptools 
+plyr: Hadley Wickham (2011). The Split-Apply-Combine Strategy for Data Analysis. Journal of Statistical Software, 40(1), 1-29. URL http://www.jstatsoft.org/v40/i01/. 
+portfolio: Jeff Enos, David Kane, with contributions from Daniel Gerlanc and Kyle Campbell (2013). portfolio: Analysing equity portfolios. R package version 0.4-6. http://CRAN.R-project.org/package=portfolio 
+RColorBrewer: Erich Neuwirth (2011). RColorBrewer: ColorBrewer palettes. R package version 1.0-5. http://CRAN.R-project.org/package=RColorBrewer 
+rgdal: Roger Bivand, Tim Keitt and Barry Rowlingson (2013). rgdal: Bindings for the Geospatial Data Abstraction Library. R package version 0.8-11. http://CRAN.R-project.org/package=rgdal 
+rjson: Alex Couture-Beil (2013). rjson: JSON for R. R package version 0.2.13. http://CRAN.R-project.org/package=rjson 
+RJSONIO: Duncan Temple Lang (2013). RJSONIO: Serialize R objects to JSON, JavaScript Object Notation. R package version 1.0-3. http://CRAN.R-project.org/package=RJSONIO 
+scales: Hadley Wickham (2012). scales: Scale functions for graphics.. R package version 0.2.3. http://CRAN.R-project.org/package=scales 
+splines: R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL http://www.R-project.org/. 
+vcd: David Meyer, Achim Zeileis, and Kurt Hornik (2013). vcd: Visualizing Categorical Data. R package version 1.3-1. 
+vcd: David Meyer, Achim Zeileis, and Kurt Hornik (2006). The Strucplot Framework: Visualizing Multi-Way Contingency Tables with vcd. Journal of Statistical Software, 17(3), 1-48. URL http://www.jstatsoft.org/v17/i03/ 
+vcd: Achim Zeileis, David Meyer, and Kurt Hornik (2007). Residual-based Shadings for Visualizing (Conditional) Independence. Journal of Computational and Graphical Statistics, 16(3), 507-525. 
+verisr: Jay Jacobs (2013). verisr: Tools for working with VERIS objects. R package version 0.1.  
+zoo: Achim Zeileis and Gabor Grothendieck (2005). zoo: S3 Infrastructure for Regular and Irregular Time Series. Journal of Statistical Software, 14(6), 1-27. URL http://www.jstatsoft.org/v14/i06/ 
