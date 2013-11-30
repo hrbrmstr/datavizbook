@@ -3,7 +3,7 @@
 # this is a JSON example in the book
 
 # Listing 7-2 #########################################################
-# this is a JSON example in the book
+# see python code
 
 # Listing 7-3 #########################################################
 # set working directory to chapter location
@@ -41,7 +41,7 @@ jsondir <- 'data/vcdb/'
 # create a veris instance with the vcdb data
 vcdb <- json2veris(jsondir)
 
-# Listing 7-6 #########################################################
+# Listing 7-7 #########################################################
 # requires package : verisr
 # requires object: vcdb (7-6)
 # we can get some high level overview of the incidents by running
@@ -65,7 +65,7 @@ summary(vcdb)
 ##                2              614             1604           165
 #plot(vcdb)
 
-# Listing 7-7 #########################################################
+# Listing 7-8 #########################################################
 # requires package : verisr
 # requires object: vcdb (7-6)
 actors <- getenum(vcdb, "actor")
@@ -77,7 +77,7 @@ print(actors)
 ## 3  partner 100
 ## 4  unknown  85
 
-# Listing 7-7 #########################################################
+# Listing 7-9 #########################################################
 # requires package : verisr
 # requires object: vcdb (7-6)
 actors <- getenum(vcdb, "actor", add.n=TRUE, add.freq=TRUE)
@@ -88,7 +88,7 @@ print(actors)
 ## 3  partner 100 1643 0.061
 ## 4  unknown  85 1643 0.052
 
-# Listing 7-7 #########################################################
+# Listing 7-10 #########################################################
 # requires package : verisr, ggplot2
 # requires object: vcdb (7-6)
 library(ggplot2)
@@ -127,7 +127,7 @@ print(verisplot(vcdb, "action.hacking.vector"))
 print(verisplot(vcdb, "attribute.confidentiality.data.variety"))
 print(verisplot(vcdb, "asset.assets"))
 
-# Listing 7-8 #########################################################
+# Listing 7-11#########################################################
 # requires package : verisr, ggplot2
 # requires object: vcdb (7-6)
 # get a data.frame comparing the actions to the assets
@@ -306,9 +306,9 @@ gg <- gg + theme(axis.text.x = element_blank(),
 print(gg)
 
 
-# Figure 7-4 #########################################################
+# Figure 7-5 #########################################################
 # requires package : verisr, ggplot2, scales, gridExtra
-# requires object: vcdb (7-6), verisplot (7-7)
+# requires object: vcdb (7-6), verisplot (7-10)
 library(gridExtra)
 aa <- verisplot(vcdb, "action")
 bb <- verisplot(vcdb, "actor.external.variety")

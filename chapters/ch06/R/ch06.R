@@ -515,3 +515,71 @@ for(i in seq(200)) {
 }
 # reset screen back to default
 par(mar=c(5.1,4.1,4.1,2.1))
+
+
+
+# Figure 6-5 #####
+par(mar=c(2,2,1,1))
+set.seed(2)
+count <- 50
+x <- rnorm(count, mean=5, sd=2)
+y <- rnorm(count, mean=5, sd=2)
+src.col <- c("blue", "red")
+cols <- sample(src.col, 50, replace=T)
+plot(x, y, pch=16, yaxt="n", xaxt="n", xlab="", col=cols, 
+     xlim=c(-1, 11), ylim=c(-1, 11), ylab="", frame=F)
+xat <- c(0, 5, 10)
+axis(1, at=xat, labels=xat, col.axis="gray75", las=2)
+axis(2, at=xat, labels=xat, col.axis="gray75", las=2)
+# exported at 300 x 150
+
+set.seed(3)
+count <- 25
+x <- rnorm(count, mean=5, sd=2)
+y <- rnorm(count, mean=5, sd=2)
+src.col <- c("blue", "red")
+cols <- sample(src.col, 50, replace=T)
+plot(x, y, pch=16, yaxt="n", xaxt="n", xlab="", col=cols, 
+     xlim=c(-1, 11), ylim=c(-1, 11), ylab="", frame=F)
+xat <- c(0, 5, 10)
+axis(1, at=xat, labels=xat, col.axis="gray75", las=2)
+axis(2, at=xat, labels=xat, col.axis="gray75", las=2)
+
+# third, boxes
+plot(x=NULL, frame=F, xlim=c(0,11), ylim=c(0,11), yaxt="n", xaxt="n")
+xat <- c(0, 5, 10)
+axis(1, at=xat, labels=xat, col.axis="gray75", las=2)
+axis(2, at=xat, labels=xat, col.axis="gray75", las=2)
+for(i in seq(10)) {
+  rect(i-0.4, runif(1, 0, 4.5), i+0.4, runif(1, 5.5, 10), col="gray50")  
+}
+# fourth
+plot(x=seq(10), y=c(0,2,2.5,5,4,7,7.5,9, 8, 10), type="l", col="blue", 
+     frame=F, yaxt="n", xaxt="n", lwd=5)
+lines(x=seq(10), y=c(5,4,1,2,1.4,4,4.6,5.4,5,6), col="red", lwd=5)
+
+# fifth, angles
+plot(x=NULL, frame=F, xlim=c(0,11), ylim=c(0,11), yaxt="n", xaxt="n")
+segments(1,1,1,7, lwd=5)
+segments(1,1,3,6, lwd=5)
+segments(4,5,6,9, lwd=5)
+segments(4,5,6,1, lwd=5)
+segments(10,5,9,10, lwd=5)
+segments(10,5,7,3, lwd=5)
+
+# bubbles
+par(mar=c(0.5,0.5,1,1))
+plot(x=NULL, frame=F, xlim=c(0,11), ylim=c(0,11), yaxt="n", xaxt="n")
+points(1.4,3, pch=21, cex=9, lwd=5)
+points(4,8, pch=21, cex=4, lwd=5)
+points(7,4, pch=21, cex=12, lwd=5)
+points(9.5,9, pch=21, cex=6, lwd=5)
+
+library(RColorBrewer)
+plot(x=NULL, frame=F, xlim=c(0,10), ylim=c(1,10), yaxt="n", xaxt="n")
+blu <- brewer.pal(9, "Blues")
+for(i in seq(9)) {
+  rect(i-0.5, 1, i+0.51, 10, col=blu[i], lwd=0)  
+}
+
+
