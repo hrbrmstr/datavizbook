@@ -7,7 +7,7 @@ setwd("~/book/ch04")
 # are installed, install if necessary
 pkg <- c("bitops", "ggplot2", "mapproj", "stringr", "maps",
          "grid", "gridExtra", "RColorBrewer", "igraph",
-         "colorspace", "scales")
+         "colorspace", "scales", "stringr")
 new.pkg <- pkg[!(pkg %in% installed.packages())]
 if (length(new.pkg)) {
   install.packages(new.pkg)  
@@ -241,8 +241,7 @@ gg1 <- gg1 + labs(x="Registry", y="%", title="IANA %")
 # make bar chart horizontal
 gg1 <- gg1 + coord_flip()
 # rotate the x-axis labels and remove the legend
-gg1 <- gg1 + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
-                   panel.background = element_blank(),
+gg1 <- gg1 + theme(panel.background = element_blank(),
                    legend.position = "none")
 
 gg2 <- ggplot(data=melted.df[melted.df$variable=="AV.pct",], 
@@ -251,8 +250,7 @@ gg2 <- gg2 + geom_bar(stat="identity", fill=set2[4]) # using bars
 gg2 <- gg2 + ylim(0,40)
 gg2 <- gg2 + labs(x="Registry", y="%", title="AlienVault IANA %") 
 gg2 <- gg2 + coord_flip()
-gg2 <- gg2 + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
-                   panel.background = element_blank(),
+gg2 <- gg2 + theme(panel.background = element_blank(),
                    legend.position = "none")
 
 # grid.arrange makes it possible to do very precise placement of 
@@ -267,10 +265,9 @@ gg <- ggplot(data=combined.df,
              aes(x=reorder(Registry, -IANA.Block.Count), y=AV.pct ))
 gg <- gg + geom_bar(stat="identity", fill=set2[2])
 gg <- gg + labs(x="Registry", y="Count",
-                title="AlienVault/IANA sorted by IANA (low-to-high") 
+                title="AlienVault/IANA sorted by IANA Block Size (low-to-high)") 
 gg <- gg + coord_flip()
-gg <- gg + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
-                 panel.background = element_blank(),
+gg <- gg + theme(panel.background = element_blank(),
                  legend.position = "none")
 gg
 
@@ -324,8 +321,7 @@ gg <- gg + geom_point(aes(x=IANA.Block.Count,
                       color=set2[2], size=4)
 gg <- gg + labs(x="IANA Block Count", y="AlienVault IANA Count",
                 title="IANA ~ AlienVault")
-gg <- gg + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
-                 legend.position = "none")
+gg <- gg + theme(legend.position = "none")
 gg <- gg + theme(panel.background=element_rect(fill=alpha(set2[3],0.2),
                                                colour='white'))
 gg
