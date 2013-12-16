@@ -190,9 +190,12 @@ library(RColorBrewer)
 # Note: this does not use ggplot, but instead
 # creates a blank canvas and puts text and boxes on it.
 # a neat trick for truly unique approaches.
+setEPS()
+postscript(file="figures/793725c06f008.eps", paper="special",
+           width=8, height=2, horizontal=FALSE)
 par(mar=c(0,0,0,0))
 plot(NULL, xlim=c(0,120), ylim=c(50,100), yaxt="n", ann=FALSE, xaxt="n", bty="n")
-text(17.5,89, "Sequantial", pos=3)
+text(17.5,89, "Sequential", pos=3)
 blue <- brewer.pal(5, "Blues")
 rdpu <- brewer.pal(5, "RdPu")
 ygb <- brewer.pal(5, "YlGnBu")
@@ -229,6 +232,7 @@ for (i in seq(5)) {
   rect(80+(i*5), 60, (i*5)+85, 66, col=ygb[i], border=NA)
 }
 par(mar=c(5.1,4.1,4.1,2.1))
+dev.off()
 
 # Figure 6-9 #########################################################
 # requires packages: ggplot2, gdata
@@ -582,4 +586,9 @@ for(i in seq(9)) {
   rect(i-0.5, 1, i+0.51, 10, col=blu[i], lwd=0)  
 }
 
+plot(x=NULL, frame=F, xlim=c(0,31), ylim=c(1,10), yaxt="n", xaxt="n")
+blu <- rainbow(30)
+for(i in seq(30)) {
+  rect(i-0.5, 1, i+0.51, 10, col=blu[i], lwd=0)  
+}
 
